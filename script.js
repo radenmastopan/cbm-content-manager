@@ -1,33 +1,50 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwRevkyAu5WXShxXEVhteQ_c3Bb-u06plEGSZsTNV5NFlanVJK8SCM1YcGY2Lnhk3YxGw/exec";
 
 
-// Ambil data Google Sheets
+// ===============================
+// AMBIL DATA GOOGLE SHEET
+// ===============================
 
 async function loadData(){
 
-    try{
+    try {
 
         const response = await fetch(API_URL);
 
         const result = await response.json();
 
 
-        console.log(result);
+        console.log("DATA API:", result);
+
 
 
         if(result.success){
+
+            tampilkanHalaman(result.data);
 
             updateDashboard(result.data);
 
         }
 
 
-    }catch(error){
+    } catch(error){
 
         console.error(
             "Gagal mengambil data:",
             error
         );
+
+
+        const list =
+        document.getElementById("contentList");
+
+
+        if(list){
+
+            list.innerHTML =
+            "<p>Gagal mengambil data.</p>";
+
+        }
 
     }
 
@@ -35,69 +52,65 @@ async function loadData(){
 
 
 
+// ===============================
+// TENTUKAN HALAMAN
+// ===============================
 
-function updateDashboard(data){
-
-
-    let onProcess =
-    data.ON_PROCESS?.length || 0;
-
-
-    let stock =
-    data.STOCK?.length || 0;
+function tampilkanHalaman(data){
 
 
-    let upload =
-    data.UPLOAD?.length || 0;
-
-
-    let booster =
-    data.BOOSTER?.length || 0;
+    const path =
+    window.location.pathname;
 
 
 
-    let total =
-    onProcess + stock + upload + booster;
+    if(path.includes("onprocess")){
 
 
-
-    const totalEl =
-    document.getElementById("totalKonten");
-
-
-    const processEl =
-    document.getElementById("onProcess");
+        tampilkanKonten(
+            data.ON_PROCESS,
+            "On Process"
+        );
 
 
-    const stockEl =
-    document.getElementById("stock");
+    }
 
 
-    const uploadEl =
-    document.getElementById("upload");
+    else if(path.includes("stock")){
 
 
-
-    if(totalEl)
-        totalEl.innerText = total;
-
-
-    if(processEl)
-        processEl.innerText = onProcess;
+        tampilkanKonten(
+            data.STOCK,
+            "Stock"
+        );
 
 
-    if(stockEl)
-        stockEl.innerText = stock;
+    }
 
 
-    if(uploadEl)
-        uploadEl.innerText = upload;
+    else if(path.includes("upload")){
 
 
+        tampilkanKonten(
+            data.UPLOAD,
+            "Terupload"
+        );
 
-    tampilkanKonten(
-        data.STOCK
-    );
+
+    }
+
+
+    else if(path.includes("booster")){
+
+
+        tampilkanKonten(
+            data.BOOSTER,
+            "Booster"
+        );
+
+
+    }
+
 
 
 }
@@ -105,8 +118,11 @@ function updateDashboard(data){
 
 
 
+// ===============================
+// TAMPILKAN CARD KONTEN
+// ===============================
 
-function tampilkanKonten(data){
+function tampilkanKonten(data, status){
 
 
     const list =
@@ -123,8 +139,10 @@ function tampilkanKonten(data){
 
     if(!data || data.length===0){
 
+
         list.innerHTML =
-        "<p>Belum ada data.</p>";
+        "<p>Tidak ada data.</p>";
+
 
         return;
 
@@ -132,8 +150,21 @@ function tampilkanKonten(data){
 
 
 
-    data.slice(0,10)
-    .forEach(item=>{
+    data.forEach(item=>{
+
+
+        let judul =
+        item["Judul Konten "] ||
+        item["Judul Konten"] ||
+        "-";
+
+
+
+        let editor =
+        item["Editor "] ||
+        item["Editor"] ||
+        "-";
+
 
 
         list.innerHTML += `
@@ -141,18 +172,19 @@ function tampilkanKonten(data){
         <div class="card">
 
             <h3>
-            ${item["Judul Konten "] || "-"}
+            ${judul}
             </h3>
-
-            <p>
-            👤 Editor:
-            ${item["Editor "] || "-"}
-            </p>
 
 
             <p>
             📌 Status:
-            Stock
+            ${status}
+            </p>
+
+
+            <p>
+            👤 Editor:
+            ${editor}
             </p>
 
 
@@ -165,6 +197,82 @@ function tampilkanKonten(data){
 
 
 }
+
+
+
+
+
+// ===============================
+// DASHBOARD
+// ===============================
+
+function updateDashboard(data){
+
+
+    setText(
+        "totalKonten",
+        jumlah(data.ON_PROCESS)
+        +
+        jumlah(data.STOCK)
+        +
+        jumlah(data.UPLOAD)
+    );
+
+
+
+    setText(
+        "onProcess",
+        jumlah(data.ON_PROCESS)
+    );
+
+
+    setText(
+        "stock",
+        jumlah(data.STOCK)
+    );
+
+
+    setText(
+        "upload",
+        jumlah(data.UPLOAD)
+    );
+
+
+}
+
+
+
+function jumlah(data){
+
+    if(!Array.isArray(data))
+        return 0;
+
+
+    return data.filter(row=>{
+
+        return Object.values(row)
+        .some(value=>value !== "");
+
+    }).length;
+
+}
+
+
+
+function setText(id,value){
+
+    const el =
+    document.getElementById(id);
+
+
+    if(el){
+
+        el.innerText=value;
+
+    }
+
+}
+
 
 
 
