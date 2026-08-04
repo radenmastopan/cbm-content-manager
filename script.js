@@ -1,305 +1,70 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbySzpw6mLo9SZBl0LOB7ANx1mxHQ1feFht-aH9hfs7xWnQ0fGwDpDw0GmPwiv_ieD4B6A/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz45ypG0d5pwwn-4jXYICcH6kXGVDT4y5s8cxOLsp024SrmV-7Axc3abJdK2DyW8KxpHg/exec";
 
 
-// ==============================
-// AMBIL DATA DARI GOOGLE SHEET
-// ==============================
+
+// =============================
+// LOAD DATA
+// =============================
 
 async function loadData(){
 
-    try{
 
-        const response = await fetch(API_URL);
-
-        const result = await response.json();
+try{
 
 
-        console.log("DATA GOOGLE SHEET:", result);
+const response =
+await fetch(API_URL);
 
 
 
-        if(result.success){
-
-            tampilkanSesuaiHalaman(result.data);
-
-            updateDashboard(result.data);
-
-        }
+const result =
+await response.json();
 
 
 
-    }catch(error){
-
-        console.error(error);
-
-
-        const list =
-        document.getElementById("contentList");
-
-
-        if(list){
-
-            list.innerHTML =
-            "<p>Gagal mengambil data.</p>";
-
-        }
-
-    }
-
-}
+console.log(result);
 
 
 
-// ==============================
-// PILIH DATA SESUAI HALAMAN
-// ==============================
-
-function tampilkanSesuaiHalaman(data){
+if(result.success){
 
 
-    const halaman =
-    window.location.pathname;
+tampilkanHalaman(
+result.data
+);
 
 
+updateDashboard(
+result.data
+);
 
-    if(halaman.includes("onprocess")){
-
-
-        tampilkanKonten(
-            data.ON_PROCESS,
-            "On Process"
-        );
-
-
-    }
-
-
-    else if(halaman.includes("stock")){
-
-
-        tampilkanKonten(
-            data.STOCK,
-            "Stock"
-        );
-
-
-    }
-
-
-    else if(halaman.includes("upload")){
-
-
-        tampilkanKonten(
-            data.UPLOAD,
-            "Terupload"
-        );
-
-
-    }
-
-
-    else if(halaman.includes("booster")){
-
-
-        tampilkanKonten(
-            data.BOOSTER,
-            "Booster Live"
-        );
-
-
-    }
 
 
 }
 
 
 
+}
 
-// ==============================
-// TAMPIL CARD KONTEN
-// ==============================
+catch(error){
 
-function tampilkanKonten(data,status){
 
+console.error(error);
 
-    const list =
-    document.getElementById("contentList");
 
+const list =
+document.getElementById("contentList");
 
-    if(!list) return;
 
+if(list){
 
+list.innerHTML =
+"<p>Gagal mengambil data</p>";
 
-    list.innerHTML="";
+}
 
 
-
-    if(!data || data.length === 0){
-
-        list.innerHTML =
-        "<p>Belum ada data.</p>";
-
-        return;
-
-    }
-
-
-
-    data.forEach(item=>{
-
-
-        const judul =
-        getData(item,
-        [
-            "Judul Konten",
-            "Judul Konten "
-        ]);
-
-
-
-        let html = `
-
-        <div class="card">
-
-        <h3>
-        ${judul}
-        </h3>
-
-
-        <p>
-        📌 Status:
-        ${status}
-        </p>
-
-        `;
-
-
-
-        if(status !== "Booster Live"){
-
-
-            html += `
-
-            <p>
-            ✂️ Selesai Edit:
-            ${formatTanggal(
-            getData(item,
-            [
-            "Tanggal Selesai Edit"
-            ]))}
-            </p>
-
-
-            <p>
-            👥 Review:
-            ${formatTanggal(
-            getData(item,
-            [
-            "Tanggal Upload ke Grup Review"
-            ]))}
-            </p>
-
-
-            <p>
-            ✅ ACC:
-            ${formatTanggal(
-            getData(item,
-            [
-            "Tanggal ACC konten"
-            ]))}
-            </p>
-
-
-            <p>
-            🎬 Upload:
-            ${formatTanggal(
-            getData(item,
-            [
-            "Tanggal Upload Tiktok"
-            ]))}
-            </p>
-
-
-            <p>
-            👤 Editor:
-            ${getData(item,
-            [
-            "Editor"
-            ])}
-            </p>
-
-
-            `;
-
-
-        }
-
-
-
-        if(status === "Booster Live"){
-
-
-            html += `
-
-
-            <p>
-            💰 Nominal Booster:
-            ${getData(item,
-            [
-            "Nominal Booster"
-            ])}
-            </p>
-
-
-
-            <p>
-            📊 Sebelum Booster:
-            ${getData(item,
-            [
-            "Jumlah View & Like Sebelum Booster"
-            ])}
-            View
-            </p>
-
-
-
-            <p>
-            ❤️ Like Sebelum:
-            ${getData(item,
-            [
-            "Like"
-            ])}
-            </p>
-
-
-
-            <p>
-            🚀 Setelah Booster:
-            ${getData(item,
-            [
-            "Jumlah View & Like Setelah Booster"
-            ])}
-            </p>
-
-
-            `;
-
-        }
-
-
-
-        html += `
-
-        </div>
-
-        `;
-
-
-
-        list.innerHTML += html;
-
-
-    });
+}
 
 
 
@@ -309,29 +74,70 @@ function tampilkanKonten(data,status){
 
 
 
-// ==============================
-// AMBIL VALUE AMAN
-// ==============================
 
-function getData(obj,nama){
+// =============================
+// DETEKSI HALAMAN
+// =============================
 
-
-    for(let key of nama){
+function tampilkanHalaman(data){
 
 
-        if(obj[key] !== undefined &&
-        obj[key] !== ""){
+const page =
+window.location.pathname;
 
 
-            return obj[key];
+
+if(page.includes("onprocess")){
 
 
-        }
+renderCard(
+data.ON_PROCESS,
+"On Process"
+);
 
-    }
+
+}
 
 
-    return "-";
+
+else if(page.includes("stock")){
+
+
+renderCard(
+data.STOCK,
+"Stock"
+);
+
+
+}
+
+
+
+else if(page.includes("upload")){
+
+
+renderCard(
+data.UPLOAD,
+"Terupload"
+);
+
+
+}
+
+
+
+else if(page.includes("booster")){
+
+
+renderCard(
+data.BOOSTER,
+"Booster Live"
+);
+
+
+}
+
+
 
 }
 
@@ -339,30 +145,361 @@ function getData(obj,nama){
 
 
 
-// ==============================
+
+
+// =============================
+// RENDER CARD
+// =============================
+
+
+function renderCard(data,status){
+
+
+
+const list =
+document.getElementById(
+"contentList"
+);
+
+
+
+if(!list)
+return;
+
+
+
+list.innerHTML="";
+
+
+
+
+
+if(!Array.isArray(data) || data.length===0){
+
+
+list.innerHTML =
+"<p>Data tidak ditemukan</p>";
+
+
+return;
+
+
+}
+
+
+
+
+
+
+data.forEach(item=>{
+
+
+
+let html = `
+
+<div class="card">
+
+
+<h3>
+${get(item,"Judul Konten")}
+</h3>
+
+
+<p>
+📌 Status:
+${status}
+</p>
+
+
+
+`;
+
+
+
+
+
+// SEMUA KONTEN
+
+html += `
+
+
+<p>
+👤 Editor:
+${get(item,"Editor")}
+</p>
+
+
+<p>
+📱 Akun TikTok:
+${get(item,"Akun Tiktok")}
+</p>
+
+
+
+<p>
+✂️ Selesai Edit:
+${tanggal(get(item,"Tanggal Selesai Edit"))}
+</p>
+
+
+<p>
+👥 Review:
+${tanggal(get(item,"Tanggal Upload ke Grup Review"))}
+</p>
+
+
+<p>
+✅ ACC:
+${tanggal(get(item,"Tanggal ACC konten"))}
+</p>
+
+
+
+`;
+
+
+
+
+
+
+if(status==="Terupload"){
+
+
+html += `
+
+
+<p>
+🎬 Upload TikTok:
+${tanggal(get(item,"Tanggal Upload Tiktok"))}
+</p>
+
+
+<p>
+🚀 Jenis Booster:
+${get(item,"Jenis Booster")}
+</p>
+
+
+<p>
+💰 Nominal Booster:
+${get(item,"Nominal Booster")}
+</p>
+
+
+<p>
+💳 Dana Booster:
+${get(item,"Asal Dana Booster")}
+</p>
+
+
+
+`;
+
+
+
+}
+
+
+
+
+
+
+
+if(status==="Booster Live"){
+
+
+html += `
+
+
+
+<hr>
+
+
+<h4>
+🚀 Data Booster
+</h4>
+
+
+
+<p>
+Jenis Booster:
+${get(item,"Jenis Booster")}
+</p>
+
+
+<p>
+💰 Nominal:
+${get(item,"Nominal Booster")}
+</p>
+
+
+
+<p>
+💳 Asal Dana:
+${get(item,"Asal Dana Booster")}
+</p>
+
+
+
+<p>
+📊 Sebelum Booster:
+${get(item,"Jumlah View Sebelum Booster")}
+View
+</p>
+
+
+
+<p>
+❤️ Like Sebelum:
+${get(item,"Jumlah Like Sebelum Booster")}
+</p>
+
+
+
+<p>
+💬 Komentar Sebelum:
+${get(item,"Komentar Sebelum Booster")}
+</p>
+
+
+
+
+<p>
+🚀 Sesudah Booster:
+${get(item,"Jumlah View Setelah Booster")}
+View
+</p>
+
+
+
+<p>
+❤️ Like Sesudah:
+${get(item,"Jumlah Like Setelah Booster")}
+</p>
+
+
+
+<p>
+💬 Komentar Sesudah:
+${get(item,"Komentar Setelah Booster")}
+</p>
+
+
+
+
+`;
+
+
+
+}
+
+
+
+
+
+
+html += `
+
+
+
+<p>
+🔗 Link:
+${get(item,"Link Konten")}
+</p>
+
+
+
+<p>
+📝 Keterangan:
+${get(item,"Keterangan")}
+</p>
+
+
+
+</div>
+
+
+
+`;
+
+
+
+
+
+list.innerHTML += html;
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+// =============================
+// GET DATA AMAN
+// =============================
+
+
+function get(obj,key){
+
+
+
+if(obj[key] !== undefined &&
+obj[key] !== ""){
+
+
+return obj[key];
+
+
+}
+
+
+
+return "-";
+
+
+
+}
+
+
+
+
+
+
+
+
+// =============================
 // FORMAT TANGGAL
-// ==============================
-
-function formatTanggal(value){
+// =============================
 
 
-    if(!value || value === "-")
-    return "-";
+function tanggal(value){
 
 
-
-    if(value.includes("T")){
-
-
-        return value
-        .split("T")[0];
-
-
-    }
+if(!value || value==="-" )
+return "-";
 
 
 
-    return value;
+if(value.includes("T")){
+
+
+return value
+.split("T")[0];
+
+
+}
+
+
+return value;
+
 
 }
 
@@ -370,30 +507,52 @@ function formatTanggal(value){
 
 
 
-// ==============================
+
+// =============================
 // DASHBOARD
-// ==============================
+// =============================
 
 function updateDashboard(data){
 
 
 
-    setText(
-    "onProcess",
-    data.ON_PROCESS?.length || 0
-    );
+setText(
+"onProcess",
+jumlah(data.ON_PROCESS)
+);
 
 
-    setText(
-    "stock",
-    data.STOCK?.length || 0
-    );
+setText(
+"stock",
+jumlah(data.STOCK)
+);
 
 
-    setText(
-    "upload",
-    data.UPLOAD?.length || 0
-    );
+setText(
+"upload",
+jumlah(data.UPLOAD)
+);
+
+
+setText(
+"booster",
+jumlah(data.BOOSTER)
+);
+
+
+
+}
+
+
+
+
+function jumlah(data){
+
+return Array.isArray(data)
+?
+data.length
+:
+0;
 
 
 }
@@ -404,17 +563,19 @@ function updateDashboard(data){
 function setText(id,value){
 
 
-    const el =
-    document.getElementById(id);
+const el =
+document.getElementById(id);
 
 
-    if(el){
+if(el){
 
-        el.innerText=value;
-
-    }
+el.innerText=value;
 
 }
+
+
+}
+
 
 
 
