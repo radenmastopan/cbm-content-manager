@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tambah Konten</title>
+    <title>Tambah Konten - CBM Content Manager</title>
 
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -23,18 +23,34 @@
             ➕ Tambah Konten
         </div>
 
-        <p>Isi data konten baru di bawah ini.</p>
+        <p>Silakan isi data konten baru.</p>
 
-        <input type="text" id="judul" placeholder="Judul Konten">
+        <label for="judul">Judul Konten</label>
+        <input
+            type="text"
+            id="judul"
+            placeholder="Masukkan judul konten..."
+            required>
 
-        <input type="date" id="tglBahan">
+        <label for="tglBahan">Tanggal Bahan Mentah Diterima</label>
+        <input
+            type="date"
+            id="tglBahan"
+            required>
 
-        <input type="date" id="tglEdit">
+        <label for="tglEdit">Tanggal Mulai Edit</label>
+        <input
+            type="date"
+            id="tglEdit">
 
-        <input type="date" id="tglJadi">
+        <label for="tglJadi">Tanggal Jadi Konten</label>
+        <input
+            type="date"
+            id="tglJadi">
 
-        <select id="editor">
-            <option value="">Pilih Editor</option>
+        <label for="editor">Editor</label>
+        <select id="editor" required>
+            <option value="">-- Pilih Editor --</option>
             <option>Topan</option>
             <option>Admin</option>
             <option>Dina</option>
@@ -42,24 +58,36 @@
             <option>Farid</option>
         </select>
 
-        <input type="date" id="review">
+        <label for="review">Tanggal Upload ke Grup Review</label>
+        <input
+            type="date"
+            id="review">
 
-        <input type="date" id="acc">
+        <label for="acc">Tanggal ACC</label>
+        <input
+            type="date"
+            id="acc">
 
+        <label for="status">Status</label>
         <select id="status">
-            <option value="">Pilih Status</option>
-            <option>On Process</option>
+            <option selected>On Process</option>
             <option>Stock</option>
             <option>Upload</option>
+            <option>Booster</option>
         </select>
 
+        <label for="keterangan">Keterangan</label>
         <textarea
             id="keterangan"
             rows="4"
-            placeholder="Keterangan"></textarea>
+            placeholder="Tambahkan catatan jika diperlukan..."></textarea>
 
-        <button class="button" onclick="simpanKonten()">
+        <button
+            class="button"
+            onclick="simpanKonten()">
+
             💾 Simpan Konten
+
         </button>
 
     </div>
@@ -68,15 +96,25 @@
 
 <nav class="bottom-nav">
 
-<a href="index.html">🏠<br>Dashboard</a>
+    <a href="index.html">
+        🏠<br>Dashboard
+    </a>
 
-<a href="onprocess.html">🟡<br>On Process</a>
+    <a href="onprocess.html">
+        🟡<br>On Process
+    </a>
 
-<a href="stock.html">📦<br>Stock</a>
+    <a href="stock.html">
+        📦<br>Stock
+    </a>
 
-<a href="upload.html">🎬<br>Terupload</a>
+    <a href="upload.html">
+        🎬<br>Terupload
+    </a>
 
-<a href="booster.html">🚀<br>Booster</a>
+    <a href="booster.html">
+        🚀<br>Booster
+    </a>
 
 </nav>
 
