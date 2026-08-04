@@ -1,65 +1,124 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbz45ypG0d5pwwn-4jXYICcH6kXGVDT4y5s8cxOLsp024SrmV-7Axc3abJdK2DyW8KxpHg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwtoUQAPS1Trbt69ZranpTkm3R7NA_cmu2YTeh5_hUMe7GijgarvFLs8D0Ye1deXldzjA/exec";
 
 
-async function loadData(){
+// ===============================
+// AMBIL DATA
+// ===============================
+
+async function loadContent(){
+
+
+    const container =
+    document.getElementById("contentList");
+
+
+    if(!container) return;
+
+
 
     try{
 
-        const res = await fetch(API_URL);
 
-        const json = await res.json();
-
-        console.log("HASIL API:", json);
+        const response =
+        await fetch(API_URL);
 
 
-        if(!json.success){
 
-            tampilError("API tidak sukses");
+        const result =
+        await response.json();
 
-            return;
+
+
+        console.log(result);
+
+
+
+        if(!result.success){
+
+            throw new Error(
+                "API gagal"
+            );
 
         }
 
 
-        let page = window.location.pathname;
+
+
+        const page =
+        window.location.pathname;
+
+
+
+        let data=[];
+
 
 
         if(page.includes("onprocess")){
 
-            showData(json.data.ON_PROCESS);
+            data =
+            result.data.ON_PROCESS;
 
         }
+
+
 
         else if(page.includes("stock")){
 
-            showData(json.data.STOCK);
+            data =
+            result.data.STOCK;
 
         }
+
+
 
         else if(page.includes("upload")){
 
-            showData(json.data.UPLOAD);
+            data =
+            result.data.UPLOAD;
 
         }
+
+
 
         else if(page.includes("booster")){
 
-            showData(json.data.BOOSTER);
+            data =
+            result.data.BOOSTER;
 
         }
 
 
-    }
 
-    catch(err){
 
-        console.log(err);
-
-        tampilError(
-            "Gagal mengambil data"
+        renderContent(
+            data,
+            container
         );
 
+
+
     }
+
+    catch(error){
+
+
+        console.error(error);
+
+
+        container.innerHTML = `
+
+        <div class="card">
+
+        ❌ Gagal mengambil data
+
+        </div>
+
+        `;
+
+
+    }
+
+
 
 }
 
@@ -67,29 +126,36 @@ async function loadData(){
 
 
 
-function showData(data){
 
 
-    const box =
-    document.getElementById("contentList");
+// ===============================
+// TAMPILKAN DATA
+// ===============================
 
 
-    if(!box) return;
-
-
-
-    box.innerHTML="";
+function renderContent(data,container){
 
 
 
-    if(!Array.isArray(data)){
+    container.innerHTML="";
 
-        box.innerHTML =
+
+
+    if(!data || data.length===0){
+
+
+        container.innerHTML=
+
         `
+
         <div class="card">
-        Data tidak tersedia
+
+        Data tidak ditemukan
+
         </div>
+
         `;
+
 
         return;
 
@@ -97,24 +163,54 @@ function showData(data){
 
 
 
-    data.forEach(row=>{
+
+    data.forEach(item=>{
 
 
-        let isi="";
+        let html = `
+
+        <div class="card content-card">
+
+        `;
 
 
-        Object.keys(row).forEach(key=>{
 
 
-            if(row[key] !== ""){
+        Object.keys(item).forEach(key=>{
 
 
-                isi += `
+            let value =
+            item[key];
 
-                <p>
-                <b>${key}</b><br>
-                ${row[key]}
-                </p>
+
+
+            if(value!=="" && value!==null){
+
+
+                html += `
+
+
+                <div class="row">
+
+
+                <span class="label">
+
+                ${key}
+
+                </span>
+
+
+
+                <span class="value">
+
+                ${formatValue(value)}
+
+                </span>
+
+
+
+                </div>
+
 
                 `;
 
@@ -122,53 +218,80 @@ function showData(data){
             }
 
 
+
         });
 
 
 
-        box.innerHTML +=
 
-        `
 
-        <div class="card">
-
-        ${isi}
+        html += `
 
         </div>
 
         `;
 
 
+
+        container.innerHTML += html;
+
+
+
     });
 
 
+
+}
+
+
+
+
+
+
+
+// ===============================
+// FORMAT DATA
+// ===============================
+
+
+function formatValue(value){
+
+
+
+    if(typeof value === "string"){
+
+
+
+        // format tanggal ISO
+
+        if(value.includes("T")){
+
+
+            return value
+            .split("T")[0];
+
+
+        }
+
+
+    }
+
+
+
+
+    return value;
+
+
+
 }
 
 
 
 
 
-function tampilError(text){
 
+// ===============================
+// JALANKAN
+// ===============================
 
-const box =
-document.getElementById("contentList");
-
-
-if(box){
-
-box.innerHTML =
-`
-<div class="card">
-❌ ${text}
-</div>
-`;
-
-}
-
-
-}
-
-
-
-loadData();
+loadContent();
