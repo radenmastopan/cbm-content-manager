@@ -46,3 +46,28 @@ header{
     color:white;
     font-size:16px;
 }
+.stats{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+    margin-top:15px;
+}
+
+.stat-card{
+    background:#fff;
+    border-radius:14px;
+    padding:18px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+.stat-card h2{
+    color:#0A2D76;
+    font-size:28px;
+    margin-bottom:8px;
+}
+
+.stat-card span{
+    color:#666;
+    font-size:14px;
+}
