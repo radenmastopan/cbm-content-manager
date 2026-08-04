@@ -1,4 +1,9 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWM44-EGjL_9pw8_qBS9yKIjaR0ybtc8RjNSvSVD0669eajP3VJpj1z2koqVaZ-woJ/exec";
+// ===============================
+// CBM Content Manager
+// Google Sheets Integration
+// ===============================
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlPqf1zeuieOKH3AdpGMlH7agQQVGlAqRxQa3Awkmz8gD0wJ_1nTeHWQI-sa-qmKD3sA/exec";
 
 async function simpanKonten() {
 
@@ -14,12 +19,13 @@ async function simpanKonten() {
         keterangan: document.getElementById("keterangan").value.trim()
     };
 
-    if (!data.judul) {
+    // Validasi
+    if (data.judul === "") {
         alert("Judul konten wajib diisi.");
         return;
     }
 
-    if (!data.editor) {
+    if (data.editor === "") {
         alert("Silakan pilih editor.");
         return;
     }
@@ -52,15 +58,67 @@ async function simpanKonten() {
 
         } else {
 
-            alert("❌ " + (result.error || "Gagal menyimpan data."));
+            alert("❌ Gagal menyimpan data.");
 
         }
 
     } catch (error) {
 
         console.error(error);
-        alert("❌ Gagal terhubung ke Google Sheets.");
+        alert("❌ Tidak dapat terhubung ke Google Sheets.");
 
     }
 
 }
+
+// ===============================
+// Ambil Data Dashboard
+// ===============================
+
+async function loadData() {
+
+    const list = document.getElementById("contentList");
+
+    if (!list) return;
+
+    try {
+
+        const response = await fetch(SCRIPT_URL);
+
+        const data = await response.json();
+
+        list.innerHTML = "";
+
+        if (data.length === 0) {
+            list.innerHTML = "<p>Belum ada data.</p>";
+            return;
+        }
+
+        data.forEach(item => {
+
+            list.innerHTML += `
+                <div class="card">
+                    <h3>${item["Judul Konten"] || "-"}</h3>
+                    <p><b>Editor:</b> ${item["Editor"] || "-"}</p>
+                    <p><b>Status:</b> ${item["Status"] || "-"}</p>
+                </div>
+            `;
+
+        });
+
+        const total = document.getElementById("totalKonten");
+        if (total) total.innerText = data.length;
+
+    } catch (err) {
+
+        console.error(err);
+
+        if (list) {
+            list.innerHTML = "<p>Gagal mengambil data.</p>";
+        }
+
+    }
+
+}
+
+document.addEventListener("DOMContentLoaded", loadData);
