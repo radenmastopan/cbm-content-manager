@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,29 +7,80 @@
 <title>Tambah Konten</title>
 
 <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
 <header>
-CBM Content Manager
+    CBM Content Manager
 </header>
-
 
 <div class="container">
 
-<div class="card">
+    <div class="card">
 
-<h1>➕ Tambah Konten</h1>
+        <div class="title">
+            ➕ Tambah Konten
+        </div>
 
-<p>Form input konten akan dibuat di sini.</p>
+        <p>Isi data konten baru di bawah ini.</p>
+
+        <input type="text" id="judul" placeholder="Judul Konten">
+
+        <input type="date" id="tglBahan">
+
+        <input type="date" id="tglEdit">
+
+        <input type="date" id="tglJadi">
+
+        <select id="editor">
+            <option value="">Pilih Editor</option>
+            <option>Topan</option>
+            <option>Admin</option>
+            <option>Dina</option>
+            <option>Diza</option>
+            <option>Farid</option>
+        </select>
+
+        <input type="date" id="review">
+
+        <input type="date" id="acc">
+
+        <select id="status">
+            <option value="">Pilih Status</option>
+            <option>On Process</option>
+            <option>Stock</option>
+            <option>Upload</option>
+        </select>
+
+        <textarea
+            id="keterangan"
+            rows="4"
+            placeholder="Keterangan"></textarea>
+
+        <button class="button" onclick="simpanKonten()">
+            💾 Simpan Konten
+        </button>
+
+    </div>
 
 </div>
 
-</div>
+<nav class="bottom-nav">
 
+<a href="index.html">🏠<br>Dashboard</a>
+
+<a href="onprocess.html">🟡<br>On Process</a>
+
+<a href="stock.html">📦<br>Stock</a>
+
+<a href="upload.html">🎬<br>Terupload</a>
+
+<a href="booster.html">🚀<br>Booster</a>
+
+</nav>
+
+<script src="script.js"></script>
 
 </body>
-
 </html>
