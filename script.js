@@ -1,124 +1,131 @@
-// ===============================
-// CBM Content Manager
-// Google Sheets Integration
-// ===============================
+const API_URL = "https://script.google.com/macros/s/AKfycbzM4JSZ41tolaev4_DiQ9BJP9thOmCEToaAv4TmzEuTsREl9Dtucnlc8BGJSzDeaV-MJQ/exec";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlPqf1zeuieOKH3AdpGMlH7agQQVGlAqRxQa3Awkmz8gD0wJ_1nTeHWQI-sa-qmKD3sA/exec";
 
-async function simpanKonten() {
+// Ambil data dari Google Sheets
 
-    const data = {
-        judul: document.getElementById("judul").value.trim(),
-        tglBahan: document.getElementById("tglBahan").value,
-        tglEdit: document.getElementById("tglEdit").value,
-        tglJadi: document.getElementById("tglJadi").value,
-        editor: document.getElementById("editor").value,
-        review: document.getElementById("review").value,
-        acc: document.getElementById("acc").value,
-        status: document.getElementById("status").value,
-        keterangan: document.getElementById("keterangan").value.trim()
-    };
+async function loadData(){
 
-    // Validasi
-    if (data.judul === "") {
-        alert("Judul konten wajib diisi.");
-        return;
-    }
+    try{
 
-    if (data.editor === "") {
-        alert("Silakan pilih editor.");
-        return;
-    }
-
-    try {
-
-        const response = await fetch(SCRIPT_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
+        const response = await fetch(API_URL);
 
         const result = await response.json();
 
-        if (result.success) {
 
-            alert("✅ Konten berhasil disimpan!");
+        console.log(result);
 
-            document.getElementById("judul").value = "";
-            document.getElementById("tglBahan").value = "";
-            document.getElementById("tglEdit").value = "";
-            document.getElementById("tglJadi").value = "";
-            document.getElementById("editor").selectedIndex = 0;
-            document.getElementById("review").value = "";
-            document.getElementById("acc").value = "";
-            document.getElementById("status").selectedIndex = 0;
-            document.getElementById("keterangan").value = "";
 
-        } else {
+        if(result.success){
 
-            alert("❌ Gagal menyimpan data.");
+            tampilkanDashboard(result.data);
 
         }
 
-    } catch (error) {
 
-        console.error(error);
-        alert("❌ Tidak dapat terhubung ke Google Sheets.");
+    }catch(error){
+
+        console.log("Gagal mengambil data:", error);
 
     }
 
 }
 
-// ===============================
-// Ambil Data Dashboard
-// ===============================
 
-async function loadData() {
+
+
+function tampilkanDashboard(data){
+
+
+    // Hitung jumlah konten
+
+    let onProcess = data.ON_PROCESS.length || 0;
+
+    let stock = data.STOCK.length || 0;
+
+    let upload = data.UPLOAD.length || 0;
+
+
+
+    let total = onProcess + stock + upload;
+
+
+
+    document.getElementById("totalKonten").innerText = total;
+
+    document.getElementById("onProcess").innerText = onProcess;
+
+    document.getElementById("stock").innerText = stock;
+
+    document.getElementById("upload").innerText = upload;
+
+
+
+    tampilkanList(data.STOCK);
+
+}
+
+
+
+
+function tampilkanList(items){
+
 
     const list = document.getElementById("contentList");
 
-    if (!list) return;
 
-    try {
+    if(!list) return;
 
-        const response = await fetch(SCRIPT_URL);
 
-        const data = await response.json();
+    list.innerHTML="";
 
-        list.innerHTML = "";
 
-        if (data.length === 0) {
-            list.innerHTML = "<p>Belum ada data.</p>";
-            return;
-        }
 
-        data.forEach(item => {
+    if(items.length===0){
 
-            list.innerHTML += `
-                <div class="card">
-                    <h3>${item["Judul Konten"] || "-"}</h3>
-                    <p><b>Editor:</b> ${item["Editor"] || "-"}</p>
-                    <p><b>Status:</b> ${item["Status"] || "-"}</p>
-                </div>
-            `;
+        list.innerHTML="<p>Belum ada data.</p>";
 
-        });
-
-        const total = document.getElementById("totalKonten");
-        if (total) total.innerText = data.length;
-
-    } catch (err) {
-
-        console.error(err);
-
-        if (list) {
-            list.innerHTML = "<p>Gagal mengambil data.</p>";
-        }
+        return;
 
     }
 
+
+
+    items.slice(0,10).forEach(item=>{
+
+
+        list.innerHTML += `
+
+        <div class="card">
+
+            <h3>
+            ${item["Judul Konten "] || "-"}
+            </h3>
+
+
+            <p>
+            Editor:
+            ${item["Editor "] || "-"}
+            </p>
+
+
+            <p>
+            Status:
+            Stock
+            </p>
+
+
+        </div>
+
+        `;
+
+
+    });
+
+
 }
 
-document.addEventListener("DOMContentLoaded", loadData);
+
+
+
+
+loadData();
