@@ -1,81 +1,63 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbz45ypG0d5pwwn-4jXYICcH6kXGVDT4y5s8cxOLsp024SrmV-7Axc3abJdK2DyW8KxpHg/exec";
 
 
-// ===============================
-// LOAD GOOGLE SHEET DATA
-// ===============================
-
 async function loadData(){
 
     try{
 
-        const response = await fetch(API_URL);
+        const res = await fetch(API_URL);
 
-        const json = await response.json();
+        const json = await res.json();
 
-        console.log("DATA:", json);
-
-
-        if(json.success){
-
-            const data = json.data;
-
-            const page = window.location.pathname;
+        console.log("HASIL API:", json);
 
 
-            if(page.includes("onprocess")){
+        if(!json.success){
 
-                renderData(
-                    data.ON_PROCESS,
-                    "ON_PROCESS"
-                );
+            tampilError("API tidak sukses");
 
-            }
+            return;
 
-
-            else if(page.includes("stock")){
-
-                renderData(
-                    data.STOCK,
-                    "STOCK"
-                );
-
-            }
+        }
 
 
-            else if(page.includes("upload")){
-
-                renderData(
-                    data.UPLOAD,
-                    "UPLOAD"
-                );
-
-            }
+        let page = window.location.pathname;
 
 
-            else if(page.includes("booster")){
+        if(page.includes("onprocess")){
 
-                renderData(
-                    data.BOOSTER,
-                    "BOOSTER"
-                );
+            showData(json.data.ON_PROCESS);
 
-            }
+        }
+
+        else if(page.includes("stock")){
+
+            showData(json.data.STOCK);
+
+        }
+
+        else if(page.includes("upload")){
+
+            showData(json.data.UPLOAD);
+
+        }
+
+        else if(page.includes("booster")){
+
+            showData(json.data.BOOSTER);
 
         }
 
 
     }
-    catch(error){
 
-        console.log(error);
+    catch(err){
 
-        document.getElementById("contentList").innerHTML =
-        `
-        <div class="card">
-        ❌ Gagal mengambil data
-        </div>
-        `;
+        console.log(err);
+
+        tampilError(
+            "Gagal mengambil data"
+        );
 
     }
 
@@ -85,35 +67,29 @@ async function loadData(){
 
 
 
-// ===============================
-// RENDER CARD
-// ===============================
-
-function renderData(data,type){
+function showData(data){
 
 
-    const container =
+    const box =
     document.getElementById("contentList");
 
 
-    if(!container) return;
+    if(!box) return;
 
 
 
-    container.innerHTML="";
+    box.innerHTML="";
 
 
 
-    if(!Array.isArray(data) || data.length===0){
+    if(!Array.isArray(data)){
 
-
-        container.innerHTML =
+        box.innerHTML =
         `
         <div class="card">
-        Data tidak ditemukan
+        Data tidak tersedia
         </div>
         `;
-
 
         return;
 
@@ -121,255 +97,78 @@ function renderData(data,type){
 
 
 
+    data.forEach(row=>{
 
-    data.forEach(item=>{
 
+        let isi="";
 
-        let card = "";
 
+        Object.keys(row).forEach(key=>{
 
 
-        if(type==="ON_PROCESS"){
+            if(row[key] !== ""){
 
 
-            card = `
+                isi += `
 
-            <div class="card">
+                <p>
+                <b>${key}</b><br>
+                ${row[key]}
+                </p>
 
-            <h3>
-            ${ambil(item,"Judul Konten")}
-            </h3>
+                `;
 
 
-            <p>📌 No : ${ambil(item,"No")}</p>
+            }
 
 
-            <p>📅 Tanggal Bahan :
-            ${tanggal(ambil(item,"Tanggal Bahan"))}
-            </p>
+        });
 
 
-            <p>✂️ Selesai Edit :
-            ${tanggal(ambil(item,"Tanggal Selesai Edit"))}
-            </p>
 
+        box.innerHTML +=
 
-            <p>👥 Review :
-            ${tanggal(ambil(item,"Tanggal Upload ke Grup Review"))}
-            </p>
+        `
 
+        <div class="card">
 
-            <p>✅ ACC :
-            ${tanggal(ambil(item,"Tanggal ACC konten"))}
-            </p>
+        ${isi}
 
+        </div>
 
-            <p>📱 Akun :
-            ${ambil(item,"Akun Tiktok")}
-            </p>
+        `;
 
 
-            <p>🎨 Editor :
-            ${ambil(item,"Editor")}
-            </p>
+    });
 
 
-            <p>📝 Keterangan :
-            ${ambil(item,"Keterangan")}
-            </p>
+}
 
 
-            </div>
 
-            `;
 
 
-        }
+function tampilError(text){
 
 
+const box =
+document.getElementById("contentList");
 
 
+if(box){
 
+box.innerHTML =
+`
+<div class="card">
+❌ ${text}
+</div>
+`;
 
-        if(type==="STOCK"){
+}
 
 
-            card = `
+}
 
-            <div class="card">
 
 
-            <h3>
-            ${ambil(item,"Judul Konten")}
-            </h3>
-
-
-            <p>✂️ Selesai Edit :
-            ${tanggal(ambil(item,"Tanggal Selesai Edit"))}
-            </p>
-
-
-            <p>👥 Review :
-            ${tanggal(ambil(item,"Tanggal Upload ke Grup Review"))}
-            </p>
-
-
-            <p>✅ ACC :
-            ${tanggal(ambil(item,"Tanggal ACC konten"))}
-            </p>
-
-
-            <p>🎨 Editor :
-            ${ambil(item,"Editor")}
-            </p>
-
-
-            <p>📱 Akun :
-            ${ambil(item,"Akun Tiktok")}
-            </p>
-
-
-            <p>
-            📝 ${ambil(item,"Keterangan")}
-            </p>
-
-
-            </div>
-
-            `;
-
-
-        }
-
-
-
-
-
-
-        if(type==="UPLOAD"){
-
-
-            card = `
-
-
-            <div class="card">
-
-
-            <h3>
-            ${ambil(item,"Judul Konten")}
-            </h3>
-
-
-
-            <p>
-            📅 Upload TikTok :
-            ${tanggal(
-            ambil(item,"Tanggal Upload Tiktok")
-            )}
-            </p>
-
-
-
-            <p>
-            🎨 Editor :
-            ${ambil(item,"Editor")}
-            </p>
-
-
-
-            <p>
-            🚀 Jenis Booster :
-            ${ambil(item,"Jenis Booster")}
-            </p>
-
-
-
-            <p>
-            💰 Nominal Booster :
-            ${rupiah(
-            ambil(item,"Nominal Booster")
-            )}
-            </p>
-
-
-
-            <p>
-            👁️ View Sebelum :
-            ${ambil(item,"Jumlah View Sebelum Booster")}
-            </p>
-
-
-
-            <p>
-            ❤️ Like Sebelum :
-            ${ambil(item,"Jumlah Like Sebelum Booster")}
-            </p>
-
-
-
-            <p>
-            🚀 View Setelah :
-            ${ambil(item,"Jumlah View Setelah Booster")}
-            </p>
-
-
-
-            <p>
-            ❤️ Like Setelah :
-            ${ambil(item,"Jumlah Like Setelah Booster")}
-            </p>
-
-
-            <p>
-            🔗 Link :
-            ${ambil(item,"Link Konten")}
-            </p>
-
-
-            </div>
-
-
-            `;
-
-
-        }
-
-
-
-
-
-
-
-
-        if(type==="BOOSTER"){
-
-
-            card = `
-
-
-            <div class="card">
-
-
-            <h3>
-            ${ambil(item,"Judul Konten")}
-            </h3>
-
-
-
-            <h4>
-            🚀 Data Booster
-            </h4>
-
-
-
-            <p>
-            Jenis Booster :
-            ${ambil(item,"Jenis Booster")}
-            </p>
-
-
-
-            <p>
-            💰 Nominal :
-            ${rupiah(
-            ambil(item,"
+loadData();
