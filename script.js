@@ -1,35 +1,28 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwRevkyAu5WXShxXEVhteQ_c3Bb-u06plEGSZsTNV5NFlanVJK8SCM1YcGY2Lnhk3YxGw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbySzpw6mLo9SZBl0LOB7ANx1mxHQ1feFht-aH9hfs7xWnQ0fGwDpDw0GmPwiv_ieD4B6A/exec";
 
 
-
-// ============================
-// LOAD DATA
-// ============================
+// ==============================
+// AMBIL DATA DARI GOOGLE SHEET
+// ==============================
 
 async function loadData(){
 
     try{
 
-
         const response = await fetch(API_URL);
-
 
         const result = await response.json();
 
 
-
-        console.log("API DATA:", result);
+        console.log("DATA GOOGLE SHEET:", result);
 
 
 
         if(result.success){
 
-
-            tampilkanHalaman(result.data);
-
+            tampilkanSesuaiHalaman(result.data);
 
             updateDashboard(result.data);
-
 
         }
 
@@ -37,11 +30,7 @@ async function loadData(){
 
     }catch(error){
 
-
-        console.error(
-            "ERROR:",
-            error
-        );
+        console.error(error);
 
 
         const list =
@@ -55,23 +44,20 @@ async function loadData(){
 
         }
 
-
     }
-
 
 }
 
 
 
+// ==============================
+// PILIH DATA SESUAI HALAMAN
+// ==============================
 
-// ============================
-// DETEKSI HALAMAN
-// ============================
-
-function tampilkanHalaman(data){
+function tampilkanSesuaiHalaman(data){
 
 
-    let halaman =
+    const halaman =
     window.location.pathname;
 
 
@@ -129,23 +115,18 @@ function tampilkanHalaman(data){
 
 
 
-
-// ============================
-// TAMPIL DATA CARD
-// ============================
-
+// ==============================
+// TAMPIL CARD KONTEN
+// ==============================
 
 function tampilkanKonten(data,status){
-
 
 
     const list =
     document.getElementById("contentList");
 
 
-
-    if(!list)
-    return;
+    if(!list) return;
 
 
 
@@ -153,12 +134,10 @@ function tampilkanKonten(data,status){
 
 
 
-    if(!data || data.length===0){
-
+    if(!data || data.length === 0){
 
         list.innerHTML =
-        "<p>Data tidak ditemukan.</p>";
-
+        "<p>Belum ada data.</p>";
 
         return;
 
@@ -166,114 +145,21 @@ function tampilkanKonten(data,status){
 
 
 
-
     data.forEach(item=>{
 
 
         const judul =
-        ambil(item,
+        getData(item,
         [
-        "Judul Konten ",
-        "Judul Konten"
+            "Judul Konten",
+            "Judul Konten "
         ]);
 
 
 
-        const editor =
-        ambil(item,
-        [
-        "Editor ",
-        "Editor"
-        ]);
-
-
-
-        const selesai =
-        ambil(item,
-        [
-        "Tanggal Selesai Edit "
-        ]);
-
-
-
-        const review =
-        ambil(item,
-        [
-        "Tanggal Upload ke Grup Review "
-        ]);
-
-
-
-        const acc =
-        ambil(item,
-        [
-        "Tanggal ACC konten "
-        ]);
-
-
-
-        const upload =
-        ambil(item,
-        [
-        "Tanggal Upload Tiktok "
-        ]);
-
-
-
-        const nominal =
-        ambil(item,
-        [
-        "Nominal Booster"
-        ]);
-
-
-
-        const viewSebelum =
-        ambil(item,
-        [
-        "Jumlah View & Like Sebelum Booster "
-        ]);
-
-
-
-        const likeSebelum =
-        ambil(item,
-        [
-        "Like"
-        ]);
-
-
-
-        const viewSesudah =
-        ambil(item,
-        [
-        "Jumlah View & Like Setelah Booster "
-        ]);
-
-
-
-
-        const komentarSebelum =
-        ambil(item,
-        [
-        "Komentar Sebelum Booster"
-        ]);
-
-
-
-        const komentarSesudah =
-        ambil(item,
-        [
-        "Komentar Setelah Booster"
-        ]);
-
-
-
-
-        list.innerHTML += `
+        let html = `
 
         <div class="card">
-
 
         <h3>
         ${judul}
@@ -285,91 +171,132 @@ function tampilkanKonten(data,status){
         ${status}
         </p>
 
-
-        <p>
-        👤 Editor:
-        ${editor}
-        </p>
+        `;
 
 
 
-        <hr>
+        if(status !== "Booster Live"){
 
 
+            html += `
 
-        <p>
-        ✂️ Selesai Edit:
-        ${formatTanggal(selesai)}
-        </p>
-
-
-
-        <p>
-        👥 Review:
-        ${formatTanggal(review)}
-        </p>
+            <p>
+            ✂️ Selesai Edit:
+            ${formatTanggal(
+            getData(item,
+            [
+            "Tanggal Selesai Edit"
+            ]))}
+            </p>
 
 
-
-        <p>
-        ✅ ACC:
-        ${formatTanggal(acc)}
-        </p>
-
-
-
-        <p>
-        🎬 Upload:
-        ${formatTanggal(upload)}
-        </p>
+            <p>
+            👥 Review:
+            ${formatTanggal(
+            getData(item,
+            [
+            "Tanggal Upload ke Grup Review"
+            ]))}
+            </p>
 
 
-
-        ${
-        status==="Booster Live"
-
-        ?
-
-        `
-
-        <hr>
-
-        <p>
-        💰 Nominal Booster:
-        ${nominal}
-        </p>
+            <p>
+            ✅ ACC:
+            ${formatTanggal(
+            getData(item,
+            [
+            "Tanggal ACC konten"
+            ]))}
+            </p>
 
 
-        <p>
-        📊 Sebelum Booster:
-        ${viewSebelum || "-"} View
-        ${likeSebelum || "-"} Like
-        ${komentarSebelum || "-"} Komentar
-        </p>
+            <p>
+            🎬 Upload:
+            ${formatTanggal(
+            getData(item,
+            [
+            "Tanggal Upload Tiktok"
+            ]))}
+            </p>
 
 
+            <p>
+            👤 Editor:
+            ${getData(item,
+            [
+            "Editor"
+            ])}
+            </p>
 
-        <p>
-        🚀 Setelah Booster:
-        ${viewSesudah || "-"} View
-        ${komentarSesudah || "-"} Komentar
-        </p>
 
+            `;
 
-        `
-
-        :
-
-        ""
 
         }
 
 
-        </div>
 
+        if(status === "Booster Live"){
+
+
+            html += `
+
+
+            <p>
+            💰 Nominal Booster:
+            ${getData(item,
+            [
+            "Nominal Booster"
+            ])}
+            </p>
+
+
+
+            <p>
+            📊 Sebelum Booster:
+            ${getData(item,
+            [
+            "Jumlah View & Like Sebelum Booster"
+            ])}
+            View
+            </p>
+
+
+
+            <p>
+            ❤️ Like Sebelum:
+            ${getData(item,
+            [
+            "Like"
+            ])}
+            </p>
+
+
+
+            <p>
+            🚀 Setelah Booster:
+            ${getData(item,
+            [
+            "Jumlah View & Like Setelah Booster"
+            ])}
+            </p>
+
+
+            `;
+
+        }
+
+
+
+        html += `
+
+        </div>
 
         `;
 
+
+
+        list.innerHTML += html;
 
 
     });
@@ -381,22 +308,23 @@ function tampilkanKonten(data,status){
 
 
 
-// ============================
-// AMBIL DATA AMAN
-// ============================
 
-function ambil(obj,nama){
+// ==============================
+// AMBIL VALUE AMAN
+// ==============================
 
-
-    for(let i=0;i<nama.length;i++){
+function getData(obj,nama){
 
 
-        if(obj[nama[i]] !== undefined
-        &&
-        obj[nama[i]] !== ""){
+    for(let key of nama){
 
 
-            return obj[nama[i]];
+        if(obj[key] !== undefined &&
+        obj[key] !== ""){
+
+
+            return obj[key];
+
 
         }
 
@@ -411,30 +339,30 @@ function ambil(obj,nama){
 
 
 
-// ============================
+// ==============================
 // FORMAT TANGGAL
-// ============================
+// ==============================
 
-function formatTanggal(tanggal){
+function formatTanggal(value){
 
 
-    if(!tanggal ||
-    tanggal==="-" )
+    if(!value || value === "-")
     return "-";
 
 
 
-    if(tanggal.includes("T")){
+    if(value.includes("T")){
 
 
-        return tanggal
+        return value
         .split("T")[0];
+
 
     }
 
 
 
-    return tanggal;
+    return value;
 
 }
 
@@ -442,33 +370,30 @@ function formatTanggal(tanggal){
 
 
 
-// ============================
+// ==============================
 // DASHBOARD
-// ============================
+// ==============================
 
 function updateDashboard(data){
 
 
 
     setText(
-        "onProcess",
-        data.ON_PROCESS?.length || 0
+    "onProcess",
+    data.ON_PROCESS?.length || 0
     );
-
 
 
     setText(
-        "stock",
-        data.STOCK?.length || 0
+    "stock",
+    data.STOCK?.length || 0
     );
-
 
 
     setText(
-        "upload",
-        data.UPLOAD?.length || 0
+    "upload",
+    data.UPLOAD?.length || 0
     );
-
 
 
 }
@@ -479,9 +404,8 @@ function updateDashboard(data){
 function setText(id,value){
 
 
-    let el =
+    const el =
     document.getElementById(id);
-
 
 
     if(el){
@@ -490,9 +414,7 @@ function setText(id,value){
 
     }
 
-
 }
-
 
 
 
