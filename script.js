@@ -1,56 +1,145 @@
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
+const API =
+"https://script.google.com/macros/s/AKfycbwtoUQAPS1Trbt69ZranpTkm3R7NA_cmu2YTeh5_hUMe7GijgarvFLs8D0Ye1deXldzjA/exec";
 
 
-const counters =
-document.querySelectorAll(".counter");
+
+let data={};
 
 
-counters.forEach(counter=>{
+
+async function loadData(){
+
+try{
 
 
-let target =
-parseInt(counter.innerText);
+let response =
+await fetch(API);
 
 
-let current = 0;
+
+data =
+await response.json();
 
 
-let speed =
-target / 40;
+
+console.log(data);
 
 
-let timer =
-setInterval(()=>{
+
+document.getElementById("processCount")
+.innerText =
+data.data.ON_PROCESS.length;
 
 
-current += speed;
+
+document.getElementById("stockCount")
+.innerText =
+data.data.STOCK.length;
 
 
-if(current>=target){
 
-counter.innerText =
-target;
+document.getElementById("uploadCount")
+.innerText =
+data.data.UPLOAD.length;
 
-clearInterval(timer);
+
+
+let booster =
+data.data.UPLOAD.filter(item=>
+
+item["Jenis Booster"]=="Booster"
+
+);
+
+
+
+document.getElementById("boosterCount")
+.innerText =
+booster.length;
+
+
+
+showActivity();
+
+
 
 }
 
-else{
+catch(error){
 
-counter.innerText =
-Math.floor(current);
+console.log(error);
+
+document.getElementById("activity")
+.innerHTML=
+`
+<div class="activity-card">
+Gagal mengambil data
+</div>
+`;
 
 }
 
 
-},30);
+}
 
 
+
+function showActivity(){
+
+
+let box =
+document.getElementById("activity");
+
+
+let list =
+data.data.UPLOAD.slice(1,4);
+
+
+
+box.innerHTML="";
+
+
+list.forEach(item=>{
+
+
+box.innerHTML +=
+
+`
+
+<div class="activity-card">
+
+🎬
+<b>
+${item["Judul Konten "] || "-"}
+</b>
+
+<br>
+
+Upload:
+${item["Tanggal Upload Tiktok "] || "-"}
+
+</div>
+
+
+`;
 
 });
 
 
+}
 
-});
+
+
+
+
+function goPage(page){
+
+alert(
+"Halaman "+page+" akan dibuat"
+);
+
+}
+
+
+
+loadData();
