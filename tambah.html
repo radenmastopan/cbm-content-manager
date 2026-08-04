@@ -1,124 +1,248 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Tambah Konten - CBM Content Manager</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="style.css">
+<title>Tambah Konten</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
 
+
 <body>
+
 
 <header>
     CBM Content Manager
 </header>
 
+
+
 <div class="container">
 
-    <div class="card">
 
-        <div class="title">
-            ➕ Tambah Konten
-        </div>
+<div class="card">
 
-        <p>Silakan isi data konten baru.</p>
 
-        <label for="judul">Judul Konten</label>
-        <input
-            type="text"
-            id="judul"
-            placeholder="Masukkan judul konten..."
-            required>
+<div class="title">
+➕ Tambah Konten
+</div>
 
-        <label for="tglBahan">Tanggal Bahan Mentah Diterima</label>
-        <input
-            type="date"
-            id="tglBahan"
-            required>
 
-        <label for="tglEdit">Tanggal Mulai Edit</label>
-        <input
-            type="date"
-            id="tglEdit">
+<p>
+Isi data konten baru.
+</p>
 
-        <label for="tglJadi">Tanggal Jadi Konten</label>
-        <input
-            type="date"
-            id="tglJadi">
 
-        <label for="editor">Editor</label>
-        <select id="editor" required>
-            <option value="">-- Pilih Editor --</option>
-            <option>Topan</option>
-            <option>Admin</option>
-            <option>Dina</option>
-            <option>Diza</option>
-            <option>Farid</option>
-        </select>
 
-        <label for="review">Tanggal Upload ke Grup Review</label>
-        <input
-            type="date"
-            id="review">
+<label>
+Judul Konten
+</label>
 
-        <label for="acc">Tanggal ACC</label>
-        <input
-            type="date"
-            id="acc">
+<input 
+type="text" 
+id="judul"
+placeholder="Masukkan judul konten">
 
-        <label for="status">Status</label>
-        <select id="status">
-            <option selected>On Process</option>
-            <option>Stock</option>
-            <option>Upload</option>
-            <option>Booster</option>
-        </select>
 
-        <label for="keterangan">Keterangan</label>
-        <textarea
-            id="keterangan"
-            rows="4"
-            placeholder="Tambahkan catatan jika diperlukan..."></textarea>
 
-        <button
-            class="button"
-            onclick="simpanKonten()">
+<label>
+Tanggal Bahan
+</label>
 
-            💾 Simpan Konten
+<input 
+type="date" 
+id="tglBahan">
 
-        </button>
 
-    </div>
+
+<label>
+Tanggal Selesai Edit
+</label>
+
+<input 
+type="date" 
+id="tglEdit">
+
+
+
+<label>
+Tanggal Jadi
+</label>
+
+<input 
+type="date" 
+id="tglJadi">
+
+
+
+<label>
+Editor
+</label>
+
+<select id="editor">
+
+<option value="">
+Pilih Editor
+</option>
+
+<option>Topan</option>
+<option>Admin</option>
+<option>Dina</option>
+<option>Diza</option>
+<option>Farid</option>
+
+</select>
+
+
+
+
+<label>
+Tanggal Review
+</label>
+
+<input 
+type="date" 
+id="review">
+
+
+
+<label>
+Tanggal ACC
+</label>
+
+<input 
+type="date" 
+id="acc">
+
+
+
+
+
+<label>
+Status Konten
+</label>
+
+
+<select id="status">
+
+
+<option value="">
+Pilih Status
+</option>
+
+
+<option>
+On Process
+</option>
+
+
+<option>
+Stock
+</option>
+
+
+<option>
+Terupload
+</option>
+
+
+</select>
+
+
+
+
+
+<label>
+Keterangan
+</label>
+
+
+<textarea
+
+id="keterangan"
+
+rows="4"
+
+placeholder="Tambahkan keterangan">
+
+</textarea>
+
+
+
+
+
+<button 
+class="button"
+
+onclick="simpanKonten()">
+
+💾 Simpan Konten
+
+</button>
+
+
+
 
 </div>
 
+</div>
+
+
+
+
+
 <nav class="bottom-nav">
 
-    <a href="index.html">
-        🏠<br>Dashboard
-    </a>
 
-    <a href="onprocess.html">
-        🟡<br>On Process
-    </a>
+<a href="index.html">
+🏠
+<br>
+Dashboard
+</a>
 
-    <a href="stock.html">
-        📦<br>Stock
-    </a>
 
-    <a href="upload.html">
-        🎬<br>Terupload
-    </a>
+<a href="onprocess.html">
+🟡
+<br>
+On Process
+</a>
 
-    <a href="booster.html">
-        🚀<br>Booster
-    </a>
+
+<a href="stock.html">
+📦
+<br>
+Stock
+</a>
+
+
+<a href="upload.html">
+🎬
+<br>
+Terupload
+</a>
+
+
+<a href="booster.html">
+🚀
+<br>
+Booster
+</a>
+
 
 </nav>
 
+
+
+
+
 <script src="script.js"></script>
 
+
 </body>
+
 </html>
