@@ -1,46 +1,25 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzM4JSZ41tolaev4_DiQ9BJP9thOmCEToaAv4TmzEuTsREl9Dtucnlc8BGJSzDeaV-MJQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwRevkyAu5WXShxXEVhteQ_c3Bb-u06plEGSZsTNV5NFlanVJK8SCM1YcGY2Lnhk3YxGw/exec";
 
 
-// =========================
-// LOAD GOOGLE SHEETS DATA
-// =========================
+// Ambil data Google Sheets
 
 async function loadData(){
 
-    try {
-
-        console.log("Menghubungkan ke Google Sheets...");
-
+    try{
 
         const response = await fetch(API_URL);
-
-
-        if(!response.ok){
-
-            throw new Error(
-                "API Error: " + response.status
-            );
-
-        }
-
 
         const result = await response.json();
 
 
-        console.log("Data berhasil:", result);
-
+        console.log(result);
 
 
         if(result.success){
 
             updateDashboard(result.data);
 
-        }else{
-
-            console.log(result.error);
-
         }
-
 
 
     }catch(error){
@@ -50,122 +29,88 @@ async function loadData(){
             error
         );
 
-
-        const list = document.getElementById("contentList");
-
-
-        if(list){
-
-            list.innerHTML =
-            "<p>Gagal mengambil data Google Sheets.</p>";
-
-        }
-
     }
 
 }
 
 
-
-
-// =========================
-// UPDATE STATISTIK
-// =========================
 
 
 function updateDashboard(data){
 
 
-    let process = hitung(data.ON_PROCESS);
-
-    let stock = hitung(data.STOCK);
-
-    let upload = hitung(data.UPLOAD);
-
-    let booster = hitung(data.BOOSTER);
+    let onProcess =
+    data.ON_PROCESS?.length || 0;
 
 
+    let stock =
+    data.STOCK?.length || 0;
 
-    setValue(
-        "totalKonten",
-        process + stock + upload + booster
+
+    let upload =
+    data.UPLOAD?.length || 0;
+
+
+    let booster =
+    data.BOOSTER?.length || 0;
+
+
+
+    let total =
+    onProcess + stock + upload + booster;
+
+
+
+    const totalEl =
+    document.getElementById("totalKonten");
+
+
+    const processEl =
+    document.getElementById("onProcess");
+
+
+    const stockEl =
+    document.getElementById("stock");
+
+
+    const uploadEl =
+    document.getElementById("upload");
+
+
+
+    if(totalEl)
+        totalEl.innerText = total;
+
+
+    if(processEl)
+        processEl.innerText = onProcess;
+
+
+    if(stockEl)
+        stockEl.innerText = stock;
+
+
+    if(uploadEl)
+        uploadEl.innerText = upload;
+
+
+
+    tampilkanKonten(
+        data.STOCK
     );
-
-
-    setValue(
-        "onProcess",
-        process
-    );
-
-
-    setValue(
-        "stock",
-        stock
-    );
-
-
-    setValue(
-        "upload",
-        upload
-    );
-
-
-
-    tampilkanKonten(data.STOCK);
 
 
 }
 
 
 
-
-function hitung(data){
-
-    if(!Array.isArray(data)){
-
-        return 0;
-
-    }
-
-
-    return data.filter(item=>{
-
-        return Object.values(item)
-        .some(v=>v !== "");
-
-    }).length;
-
-}
-
-
-
-
-function setValue(id,value){
-
-    const el=document.getElementById(id);
-
-    if(el){
-
-        el.innerText=value;
-
-    }
-
-}
-
-
-
-
-// =========================
-// LIST KONTEN
-// =========================
 
 
 function tampilkanKonten(data){
 
 
-    const list=document.getElementById(
-        "contentList"
-    );
+    const list =
+    document.getElementById("contentList");
 
 
     if(!list) return;
@@ -176,7 +121,7 @@ function tampilkanKonten(data){
 
 
 
-    if(!Array.isArray(data)){
+    if(!data || data.length===0){
 
         list.innerHTML =
         "<p>Belum ada data.</p>";
@@ -187,27 +132,7 @@ function tampilkanKonten(data){
 
 
 
-    let isi=data.filter(item=>{
-
-        return item["Judul Konten "] 
-        && item["Judul Konten "].trim() !== "";
-
-    });
-
-
-
-    if(isi.length===0){
-
-        list.innerHTML =
-        "<p>Belum ada data.</p>";
-
-        return;
-
-    }
-
-
-
-    isi.slice(0,10)
+    data.slice(0,10)
     .forEach(item=>{
 
 
@@ -216,7 +141,7 @@ function tampilkanKonten(data){
         <div class="card">
 
             <h3>
-            ${item["Judul Konten "]}
+            ${item["Judul Konten "] || "-"}
             </h3>
 
             <p>
@@ -226,8 +151,8 @@ function tampilkanKonten(data){
 
 
             <p>
-            📅 Selesai Edit:
-            ${item["Tanggal Selesai Edit "] || "-"}
+            📌 Status:
+            Stock
             </p>
 
 
@@ -239,9 +164,7 @@ function tampilkanKonten(data){
     });
 
 
-
 }
-
 
 
 
