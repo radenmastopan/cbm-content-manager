@@ -1,10 +1,9 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwrxtREyFMEZ9ZCDPIbUmEl350IB0nJZlMwti7kHI-EVerw36Fo_Qspr3QcdtVnMzTBcA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWM44-EGjL_9pw8_qBS9yKIjaR0ybtc8RjNSvSVD0669eajP3VJpj1z2koqVaZ-woJ/exec";
 
 async function simpanKonten() {
 
     const data = {
-
-        judul: document.getElementById("judul").value,
+        judul: document.getElementById("judul").value.trim(),
         tglBahan: document.getElementById("tglBahan").value,
         tglEdit: document.getElementById("tglEdit").value,
         tglJadi: document.getElementById("tglJadi").value,
@@ -12,9 +11,18 @@ async function simpanKonten() {
         review: document.getElementById("review").value,
         acc: document.getElementById("acc").value,
         status: document.getElementById("status").value,
-        keterangan: document.getElementById("keterangan").value
-
+        keterangan: document.getElementById("keterangan").value.trim()
     };
+
+    if (!data.judul) {
+        alert("Judul konten wajib diisi.");
+        return;
+    }
+
+    if (!data.editor) {
+        alert("Silakan pilih editor.");
+        return;
+    }
 
     try {
 
@@ -36,23 +44,23 @@ async function simpanKonten() {
             document.getElementById("tglBahan").value = "";
             document.getElementById("tglEdit").value = "";
             document.getElementById("tglJadi").value = "";
-            document.getElementById("editor").value = "";
+            document.getElementById("editor").selectedIndex = 0;
             document.getElementById("review").value = "";
             document.getElementById("acc").value = "";
-            document.getElementById("status").value = "";
+            document.getElementById("status").selectedIndex = 0;
             document.getElementById("keterangan").value = "";
 
         } else {
 
-            alert("❌ Gagal menyimpan.");
+            alert("❌ " + (result.error || "Gagal menyimpan data."));
 
         }
 
-    } catch (err) {
+    } catch (error) {
 
-        console.error(err);
-        alert("❌ Tidak bisa terhubung ke Google Sheets.");
+        console.error(error);
+        alert("❌ Gagal terhubung ke Google Sheets.");
 
     }
 
-                }
+}
