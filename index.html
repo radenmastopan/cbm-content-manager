@@ -16,56 +16,101 @@
 <body>
 
 <header>
-
-CBM Content Manager
-
+    CBM Content Manager
 </header>
 
+
 <div class="container">
+
 
 <div class="card">
 
 <div class="title">
-
 🎬 Dashboard
-
 </div>
+
+
 <input
 type="text"
 placeholder="Cari konten..."
 style="width:100%;padding:14px;border-radius:10px;border:1px solid #ddd;margin-top:15px;">
-<p>
+
 
 <h1>📊 Dashboard</h1>
+
 <p>Semua progres konten, satu tempat.</p>
 
-</p>
 
 </div>
+
+
 
 <div class="stats">
 
+
 <div class="stat-card">
-<h2>0</h2>
+
+<h2 id="totalKonten">0</h2>
+
 <span>Total Konten</span>
+
 </div>
 
+
+
 <div class="stat-card">
-<h2>0</h2>
+
+<h2 id="onProcess">0</h2>
+
 <span>On Process</span>
+
 </div>
 
+
+
 <div class="stat-card">
-<h2>0</h2>
+
+<h2 id="stock">0</h2>
+
 <span>Stock</span>
+
 </div>
+
+
 
 <div class="stat-card">
-<h2>0</h2>
+
+<h2 id="upload">0</h2>
+
 <span>Upload</span>
-</div>
 
 </div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<div class="title">
+
+📋 Konten Terbaru
+
+</div>
+
+
+<div id="contentList">
+
+<p>Belum ada data.</p>
+
+</div>
+
+
+</div>
+
+
 
 <button class="button">
 
@@ -73,15 +118,52 @@ Tambah Konten
 
 </button>
 
+
+
 </div>
+
+
+
 <nav class="bottom-nav">
-    <a href="#">🏠<br>Home</a>
-    <a href="laporan.html">📝<br>Laporan</a>
-    <a href="#">➕<br>Tambah</a>
-    <a href="#">📊<br>Statistik</a>
-    <a href="#">👤<br>Akun</a>
+
+
+<a href="index.html">
+🏠<br>
+Dashboard
+</a>
+
+
+<a href="onprocess.html">
+🟡<br>
+On Process
+</a>
+
+
+<a href="stock.html">
+📦<br>
+Stock
+</a>
+
+
+<a href="upload.html">
+🎬<br>
+Terupload
+</a>
+
+
+<a href="booster.html">
+🚀<br>
+Booster
+</a>
+
+
 </nav>
+
+
+
 <script src="script.js"></script>
-  
+
+
 </body>
+
 </html>
