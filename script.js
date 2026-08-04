@@ -1,36 +1,45 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwRevkyAu5WXShxXEVhteQ_c3Bb-u06plEGSZsTNV5NFlanVJK8SCM1YcGY2Lnhk3YxGw/exec";
 
 
-// ===============================
-// AMBIL DATA GOOGLE SHEET
-// ===============================
+
+// ============================
+// LOAD DATA
+// ============================
 
 async function loadData(){
 
-    try {
+    try{
+
 
         const response = await fetch(API_URL);
+
 
         const result = await response.json();
 
 
-        console.log("DATA API:", result);
+
+        console.log("API DATA:", result);
 
 
 
         if(result.success){
 
+
             tampilkanHalaman(result.data);
 
+
             updateDashboard(result.data);
+
 
         }
 
 
-    } catch(error){
+
+    }catch(error){
+
 
         console.error(
-            "Gagal mengambil data:",
+            "ERROR:",
             error
         );
 
@@ -46,25 +55,28 @@ async function loadData(){
 
         }
 
+
     }
+
 
 }
 
 
 
-// ===============================
-// TENTUKAN HALAMAN
-// ===============================
+
+// ============================
+// DETEKSI HALAMAN
+// ============================
 
 function tampilkanHalaman(data){
 
 
-    const path =
+    let halaman =
     window.location.pathname;
 
 
 
-    if(path.includes("onprocess")){
+    if(halaman.includes("onprocess")){
 
 
         tampilkanKonten(
@@ -76,7 +88,7 @@ function tampilkanHalaman(data){
     }
 
 
-    else if(path.includes("stock")){
+    else if(halaman.includes("stock")){
 
 
         tampilkanKonten(
@@ -88,7 +100,7 @@ function tampilkanHalaman(data){
     }
 
 
-    else if(path.includes("upload")){
+    else if(halaman.includes("upload")){
 
 
         tampilkanKonten(
@@ -100,17 +112,16 @@ function tampilkanHalaman(data){
     }
 
 
-    else if(path.includes("booster")){
+    else if(halaman.includes("booster")){
 
 
         tampilkanKonten(
             data.BOOSTER,
-            "Booster"
+            "Booster Live"
         );
 
 
     }
-
 
 
 }
@@ -118,18 +129,23 @@ function tampilkanHalaman(data){
 
 
 
-// ===============================
-// TAMPILKAN CARD KONTEN
-// ===============================
 
-function tampilkanKonten(data, status){
+// ============================
+// TAMPIL DATA CARD
+// ============================
+
+
+function tampilkanKonten(data,status){
+
 
 
     const list =
     document.getElementById("contentList");
 
 
-    if(!list) return;
+
+    if(!list)
+    return;
 
 
 
@@ -141,7 +157,7 @@ function tampilkanKonten(data, status){
 
 
         list.innerHTML =
-        "<p>Tidak ada data.</p>";
+        "<p>Data tidak ditemukan.</p>";
 
 
         return;
@@ -150,20 +166,107 @@ function tampilkanKonten(data, status){
 
 
 
+
     data.forEach(item=>{
 
 
-        let judul =
-        item["Judul Konten "] ||
-        item["Judul Konten"] ||
-        "-";
+        const judul =
+        ambil(item,
+        [
+        "Judul Konten ",
+        "Judul Konten"
+        ]);
 
 
 
-        let editor =
-        item["Editor "] ||
-        item["Editor"] ||
-        "-";
+        const editor =
+        ambil(item,
+        [
+        "Editor ",
+        "Editor"
+        ]);
+
+
+
+        const selesai =
+        ambil(item,
+        [
+        "Tanggal Selesai Edit "
+        ]);
+
+
+
+        const review =
+        ambil(item,
+        [
+        "Tanggal Upload ke Grup Review "
+        ]);
+
+
+
+        const acc =
+        ambil(item,
+        [
+        "Tanggal ACC konten "
+        ]);
+
+
+
+        const upload =
+        ambil(item,
+        [
+        "Tanggal Upload Tiktok "
+        ]);
+
+
+
+        const nominal =
+        ambil(item,
+        [
+        "Nominal Booster"
+        ]);
+
+
+
+        const viewSebelum =
+        ambil(item,
+        [
+        "Jumlah View & Like Sebelum Booster "
+        ]);
+
+
+
+        const likeSebelum =
+        ambil(item,
+        [
+        "Like"
+        ]);
+
+
+
+        const viewSesudah =
+        ambil(item,
+        [
+        "Jumlah View & Like Setelah Booster "
+        ]);
+
+
+
+
+        const komentarSebelum =
+        ambil(item,
+        [
+        "Komentar Sebelum Booster"
+        ]);
+
+
+
+        const komentarSesudah =
+        ambil(item,
+        [
+        "Komentar Setelah Booster"
+        ]);
+
 
 
 
@@ -171,98 +274,214 @@ function tampilkanKonten(data, status){
 
         <div class="card">
 
-            <h3>
-            ${judul}
-            </h3>
+
+        <h3>
+        ${judul}
+        </h3>
 
 
-            <p>
-            📌 Status:
-            ${status}
-            </p>
+        <p>
+        📌 Status:
+        ${status}
+        </p>
 
 
-            <p>
-            👤 Editor:
-            ${editor}
-            </p>
+        <p>
+        👤 Editor:
+        ${editor}
+        </p>
+
+
+
+        <hr>
+
+
+
+        <p>
+        ✂️ Selesai Edit:
+        ${formatTanggal(selesai)}
+        </p>
+
+
+
+        <p>
+        👥 Review:
+        ${formatTanggal(review)}
+        </p>
+
+
+
+        <p>
+        ✅ ACC:
+        ${formatTanggal(acc)}
+        </p>
+
+
+
+        <p>
+        🎬 Upload:
+        ${formatTanggal(upload)}
+        </p>
+
+
+
+        ${
+        status==="Booster Live"
+
+        ?
+
+        `
+
+        <hr>
+
+        <p>
+        💰 Nominal Booster:
+        ${nominal}
+        </p>
+
+
+        <p>
+        📊 Sebelum Booster:
+        ${viewSebelum || "-"} View
+        ${likeSebelum || "-"} Like
+        ${komentarSebelum || "-"} Komentar
+        </p>
+
+
+
+        <p>
+        🚀 Setelah Booster:
+        ${viewSesudah || "-"} View
+        ${komentarSesudah || "-"} Komentar
+        </p>
+
+
+        `
+
+        :
+
+        ""
+
+        }
 
 
         </div>
 
+
         `;
+
 
 
     });
 
 
+
+}
+
+
+
+
+// ============================
+// AMBIL DATA AMAN
+// ============================
+
+function ambil(obj,nama){
+
+
+    for(let i=0;i<nama.length;i++){
+
+
+        if(obj[nama[i]] !== undefined
+        &&
+        obj[nama[i]] !== ""){
+
+
+            return obj[nama[i]];
+
+        }
+
+    }
+
+
+    return "-";
+
 }
 
 
 
 
 
-// ===============================
+// ============================
+// FORMAT TANGGAL
+// ============================
+
+function formatTanggal(tanggal){
+
+
+    if(!tanggal ||
+    tanggal==="-" )
+    return "-";
+
+
+
+    if(tanggal.includes("T")){
+
+
+        return tanggal
+        .split("T")[0];
+
+    }
+
+
+
+    return tanggal;
+
+}
+
+
+
+
+
+// ============================
 // DASHBOARD
-// ===============================
+// ============================
 
 function updateDashboard(data){
-
-
-    setText(
-        "totalKonten",
-        jumlah(data.ON_PROCESS)
-        +
-        jumlah(data.STOCK)
-        +
-        jumlah(data.UPLOAD)
-    );
 
 
 
     setText(
         "onProcess",
-        jumlah(data.ON_PROCESS)
+        data.ON_PROCESS?.length || 0
     );
+
 
 
     setText(
         "stock",
-        jumlah(data.STOCK)
+        data.STOCK?.length || 0
     );
+
 
 
     setText(
         "upload",
-        jumlah(data.UPLOAD)
+        data.UPLOAD?.length || 0
     );
 
 
-}
-
-
-
-function jumlah(data){
-
-    if(!Array.isArray(data))
-        return 0;
-
-
-    return data.filter(row=>{
-
-        return Object.values(row)
-        .some(value=>value !== "");
-
-    }).length;
 
 }
+
 
 
 
 function setText(id,value){
 
-    const el =
+
+    let el =
     document.getElementById(id);
+
 
 
     if(el){
@@ -271,7 +490,9 @@ function setText(id,value){
 
     }
 
+
 }
+
 
 
 
