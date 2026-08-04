@@ -1,297 +1,88 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbwtoUQAPS1Trbt69ZranpTkm3R7NA_cmu2YTeh5_hUMe7GijgarvFLs8D0Ye1deXldzjA/exec";
 
 
-// ===============================
-// AMBIL DATA
-// ===============================
-
-async function loadContent(){
+fetch(API_URL)
+.then(response => response.json())
+.then(result => {
 
 
-    const container =
-    document.getElementById("contentList");
+    console.log(result);
 
 
-    if(!container) return;
+    let page = window.location.pathname;
 
 
-
-    try{
-
-
-        const response =
-        await fetch(API_URL);
+    let data = [];
 
 
 
-        const result =
-        await response.json();
-
-
-
-        console.log(result);
-
-
-
-        if(!result.success){
-
-            throw new Error(
-                "API gagal"
-            );
-
-        }
-
-
-
-
-        const page =
-        window.location.pathname;
-
-
-
-        let data=[];
-
-
-
-        if(page.includes("onprocess")){
-
-            data =
-            result.data.ON_PROCESS;
-
-        }
-
-
-
-        else if(page.includes("stock")){
-
-            data =
-            result.data.STOCK;
-
-        }
-
-
-
-        else if(page.includes("upload")){
-
-            data =
-            result.data.UPLOAD;
-
-        }
-
-
-
-        else if(page.includes("booster")){
-
-            data =
-            result.data.BOOSTER;
-
-        }
-
-
-
-
-        renderContent(
-            data,
-            container
-        );
-
-
-
+    if(page.includes("onprocess")){
+        data = result.data.ON_PROCESS;
     }
 
-    catch(error){
+
+    else if(page.includes("stock")){
+        data = result.data.STOCK;
+    }
 
 
-        console.error(error);
+    else if(page.includes("upload")){
+        data = result.data.UPLOAD;
+    }
 
 
-        container.innerHTML = `
-
-        <div class="card">
-
-        ❌ Gagal mengambil data
-
-        </div>
-
-        `;
-
-
+    else if(page.includes("booster")){
+        data = result.data.BOOSTER;
     }
 
 
 
-}
+    const box = document.getElementById("contentList");
 
 
-
-
-
-
-
-// ===============================
-// TAMPILKAN DATA
-// ===============================
-
-
-function renderContent(data,container){
-
-
-
-    container.innerHTML="";
-
-
-
-    if(!data || data.length===0){
-
-
-        container.innerHTML=
-
-        `
-
-        <div class="card">
-
-        Data tidak ditemukan
-
-        </div>
-
-        `;
-
-
-        return;
-
-    }
-
+    box.innerHTML = "";
 
 
 
     data.forEach(item=>{
 
 
-        let html = `
+        box.innerHTML += `
 
-        <div class="card content-card">
+        <div class="card">
 
-        `;
-
-
-
-
-        Object.keys(item).forEach(key=>{
+        <h3>
+        ${item["Judul Konten"] || "-"}
+        </h3>
 
 
-            let value =
-            item[key];
+        <p>
+        Editor:
+        ${item["Editor"] || "-"}
+        </p>
 
 
+        <p>
+        Tanggal:
+        ${item["Tanggal Selesai Edit"] || "-"}
+        </p>
 
-            if(value!=="" && value!==null){
-
-
-                html += `
-
-
-                <div class="row">
-
-
-                <span class="label">
-
-                ${key}
-
-                </span>
-
-
-
-                <span class="value">
-
-                ${formatValue(value)}
-
-                </span>
-
-
-
-                </div>
-
-
-                `;
-
-
-            }
-
-
-
-        });
-
-
-
-
-
-        html += `
 
         </div>
 
         `;
 
 
-
-        container.innerHTML += html;
-
-
-
     });
 
 
 
-}
+})
+.catch(error=>{
 
+console.log(error);
 
+document.getElementById("contentList").innerHTML =
+"❌ Gagal mengambil data";
 
-
-
-
-
-// ===============================
-// FORMAT DATA
-// ===============================
-
-
-function formatValue(value){
-
-
-
-    if(typeof value === "string"){
-
-
-
-        // format tanggal ISO
-
-        if(value.includes("T")){
-
-
-            return value
-            .split("T")[0];
-
-
-        }
-
-
-    }
-
-
-
-
-    return value;
-
-
-
-}
-
-
-
-
-
-
-// ===============================
-// JALANKAN
-// ===============================
-
-loadContent();
+});
