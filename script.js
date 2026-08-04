@@ -1,88 +1,56 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwtoUQAPS1Trbt69ZranpTkm3R7NA_cmu2YTeh5_hUMe7GijgarvFLs8D0Ye1deXldzjA/exec";
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
 
 
-fetch(API_URL)
-.then(response => response.json())
-.then(result => {
+const counters =
+document.querySelectorAll(".counter");
 
 
-    console.log(result);
+counters.forEach(counter=>{
 
 
-    let page = window.location.pathname;
+let target =
+parseInt(counter.innerText);
 
 
-    let data = [];
+let current = 0;
 
 
-
-    if(page.includes("onprocess")){
-        data = result.data.ON_PROCESS;
-    }
+let speed =
+target / 40;
 
 
-    else if(page.includes("stock")){
-        data = result.data.STOCK;
-    }
+let timer =
+setInterval(()=>{
 
 
-    else if(page.includes("upload")){
-        data = result.data.UPLOAD;
-    }
+current += speed;
 
 
-    else if(page.includes("booster")){
-        data = result.data.BOOSTER;
-    }
+if(current>=target){
+
+counter.innerText =
+target;
+
+clearInterval(timer);
+
+}
+
+else{
+
+counter.innerText =
+Math.floor(current);
+
+}
 
 
-
-    const box = document.getElementById("contentList");
-
-
-    box.innerHTML = "";
-
-
-
-    data.forEach(item=>{
-
-
-        box.innerHTML += `
-
-        <div class="card">
-
-        <h3>
-        ${item["Judul Konten"] || "-"}
-        </h3>
-
-
-        <p>
-        Editor:
-        ${item["Editor"] || "-"}
-        </p>
-
-
-        <p>
-        Tanggal:
-        ${item["Tanggal Selesai Edit"] || "-"}
-        </p>
-
-
-        </div>
-
-        `;
-
-
-    });
+},30);
 
 
 
-})
-.catch(error=>{
+});
 
-console.log(error);
 
-document.getElementById("contentList").innerHTML =
-"❌ Gagal mengambil data";
 
 });
