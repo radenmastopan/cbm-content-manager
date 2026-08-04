@@ -4,7 +4,6 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>CBM Content Manager</title>
@@ -13,97 +12,92 @@
 
 </head>
 
+
 <body>
 
+
 <header>
-    CBM Content Manager
+
+<h1>Selamat datang 👋</h1>
+
+<p>Monitoring konten sosial media</p>
+
 </header>
 
 
-<div class="container">
+
+<main class="container">
 
 
-<div class="card">
-
-<div class="title">
-🎬 Dashboard
-</div>
+<section class="stats">
 
 
-<input
-type="text"
-placeholder="Cari konten..."
-style="width:100%;padding:14px;border-radius:10px;border:1px solid #ddd;margin-top:15px;">
+<div class="stat-card yellow">
 
-
-<h1>📊 Dashboard</h1>
-
-<p>Semua progres konten, satu tempat.</p>
-
+<h2>12</h2>
+<p>On Process</p>
 
 </div>
 
 
 
-<div class="stats">
+<div class="stat-card blue">
 
-
-<div class="stat-card">
-
-<h2 id="totalKonten">0</h2>
-
-<span>Total Konten</span>
+<h2>24</h2>
+<p>Stock</p>
 
 </div>
 
 
 
-<div class="stat-card">
+<div class="stat-card green">
 
-<h2 id="onProcess">0</h2>
-
-<span>On Process</span>
-
-</div>
-
-
-
-<div class="stat-card">
-
-<h2 id="stock">0</h2>
-
-<span>Stock</span>
+<h2>56</h2>
+<p>Terupload</p>
 
 </div>
 
 
 
-<div class="stat-card">
+<div class="stat-card purple">
 
-<h2 id="upload">0</h2>
-
-<span>Upload</span>
-
-</div>
-
+<h2>8</h2>
+<p>Booster</p>
 
 </div>
 
 
+</section>
 
-<div class="card">
 
 
-<div class="title">
 
-📋 Konten Terbaru
+<section>
+
+
+<div class="section-title">
+
+<h2>Aktivitas Terbaru</h2>
 
 </div>
 
 
-<div id="contentList">
 
-<p>Belum ada data.</p>
+<div class="activity-card">
+
+
+<div class="icon">
+🎬
+</div>
+
+
+<div>
+
+<h3>Goes To Taiwan</h3>
+
+<p>
+Upload TikTok • 2 jam lalu
+</p>
 
 </div>
 
@@ -112,47 +106,85 @@ style="width:100%;padding:14px;border-radius:10px;border:1px solid #ddd;margin-t
 
 
 
-<a href="tambah.html" class="button">
-Tambah Konten
-</a>
+<div class="activity-card">
 
+
+<div class="icon">
+📦
+</div>
+
+
+<div>
+
+<h3>Pack With Alma</h3>
+
+<p>
+Masuk Stock • Kemarin
+</p>
+
+</div>
 
 
 </div>
+
+
+
+</section>
+
+
+
+
+</main>
+
 
 
 
 <nav class="bottom-nav">
 
 
-<a href="index.html">
-🏠<br>
-Dashboard
+<a class="active">
+
+🏠
+<span>Home</span>
+
 </a>
 
 
-<a href="onprocess.html">
-🟡<br>
-On Process
+
+<a>
+
+📝
+<span>Process</span>
+
 </a>
 
 
-<a href="stock.html">
-📦<br>
-Stock
+
+<a>
+
+📦
+<span>Stock</span>
+
 </a>
 
 
-<a href="upload.html">
-🎬<br>
-Terupload
+
+<a>
+
+🎬
+<span>Upload</span>
+
 </a>
 
 
-<a href="booster.html">
-🚀<br>
-Booster
+
+<a>
+
+🚀
+<span>Boost</span>
+
 </a>
+
 
 
 </nav>
