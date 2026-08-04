@@ -1,35 +1,65 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzM4JSZ41tolaev4_DiQ9BJP9thOmCEToaAv4TmzEuTsREl9Dtucnlc8BGJSzDeaV-MJQ/exec";
 
 
-// ==============================
-// AMBIL DATA GOOGLE SHEETS
-// ==============================
+// =========================
+// LOAD GOOGLE SHEETS DATA
+// =========================
 
 async function loadData(){
 
     try {
 
+        console.log("Menghubungkan ke Google Sheets...");
+
+
         const response = await fetch(API_URL);
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "API Error: " + response.status
+            );
+
+        }
+
 
         const result = await response.json();
 
-        console.log("DATA API:", result);
+
+        console.log("Data berhasil:", result);
+
 
 
         if(result.success){
 
             updateDashboard(result.data);
 
-        } else {
+        }else{
 
             console.log(result.error);
 
         }
 
 
-    } catch(error){
 
-        console.log("API ERROR:", error);
+    }catch(error){
+
+        console.error(
+            "Gagal mengambil data:",
+            error
+        );
+
+
+        const list = document.getElementById("contentList");
+
+
+        if(list){
+
+            list.innerHTML =
+            "<p>Gagal mengambil data Google Sheets.</p>";
+
+        }
 
     }
 
@@ -37,60 +67,51 @@ async function loadData(){
 
 
 
-// ==============================
-// UPDATE DASHBOARD
-// ==============================
+
+// =========================
+// UPDATE STATISTIK
+// =========================
+
 
 function updateDashboard(data){
 
 
-    const onProcess = Array.isArray(data.ON_PROCESS)
-        ? data.ON_PROCESS.length
-        : 0;
+    let process = hitung(data.ON_PROCESS);
 
+    let stock = hitung(data.STOCK);
 
-    const stock = Array.isArray(data.STOCK)
-        ? bersihkanData(data.STOCK).length
-        : 0;
+    let upload = hitung(data.UPLOAD);
 
-
-    const upload = Array.isArray(data.UPLOAD)
-        ? bersihkanData(data.UPLOAD).length
-        : 0;
+    let booster = hitung(data.BOOSTER);
 
 
 
-    const total = onProcess + stock + upload;
-
-
-
-    const totalEl = document.getElementById("totalKonten");
-    const processEl = document.getElementById("onProcess");
-    const stockEl = document.getElementById("stock");
-    const uploadEl = document.getElementById("upload");
-
-
-
-    if(totalEl)
-        totalEl.innerText = total;
-
-
-    if(processEl)
-        processEl.innerText = onProcess;
-
-
-    if(stockEl)
-        stockEl.innerText = stock;
-
-
-    if(uploadEl)
-        uploadEl.innerText = upload;
-
-
-
-    tampilkanKontenTerbaru(
-        data.STOCK
+    setValue(
+        "totalKonten",
+        process + stock + upload + booster
     );
+
+
+    setValue(
+        "onProcess",
+        process
+    );
+
+
+    setValue(
+        "stock",
+        stock
+    );
+
+
+    setValue(
+        "upload",
+        upload
+    );
+
+
+
+    tampilkanKonten(data.STOCK);
 
 
 }
@@ -98,46 +119,64 @@ function updateDashboard(data){
 
 
 
-// ==============================
-// HAPUS BARIS KOSONG
-// ==============================
+function hitung(data){
 
-function bersihkanData(data){
+    if(!Array.isArray(data)){
+
+        return 0;
+
+    }
+
 
     return data.filter(item=>{
 
         return Object.values(item)
-        .some(value => value !== "");
+        .some(v=>v !== "");
 
-    });
+    }).length;
 
 }
 
 
 
-// ==============================
-// TAMPILKAN LIST KONTEN
-// ==============================
 
-function tampilkanKontenTerbaru(data){
+function setValue(id,value){
+
+    const el=document.getElementById(id);
+
+    if(el){
+
+        el.innerText=value;
+
+    }
+
+}
 
 
-    const list = document.getElementById("contentList");
+
+
+// =========================
+// LIST KONTEN
+// =========================
+
+
+function tampilkanKonten(data){
+
+
+    const list=document.getElementById(
+        "contentList"
+    );
 
 
     if(!list) return;
 
 
 
-    list.innerHTML = "";
+    list.innerHTML="";
 
 
 
-    const konten = bersihkanData(data || []);
-
-
-
-    if(konten.length === 0){
+    if(!Array.isArray(data)){
 
         list.innerHTML =
         "<p>Belum ada data.</p>";
@@ -148,7 +187,27 @@ function tampilkanKontenTerbaru(data){
 
 
 
-    konten.slice(0,10)
+    let isi=data.filter(item=>{
+
+        return item["Judul Konten "] 
+        && item["Judul Konten "].trim() !== "";
+
+    });
+
+
+
+    if(isi.length===0){
+
+        list.innerHTML =
+        "<p>Belum ada data.</p>";
+
+        return;
+
+    }
+
+
+
+    isi.slice(0,10)
     .forEach(item=>{
 
 
@@ -157,21 +216,18 @@ function tampilkanKontenTerbaru(data){
         <div class="card">
 
             <h3>
-            ${ambil(item,"Judul Konten ")}
+            ${item["Judul Konten "]}
             </h3>
-
 
             <p>
             👤 Editor:
-            ${ambil(item,"Editor ")}
+            ${item["Editor "] || "-"}
             </p>
 
 
             <p>
             📅 Selesai Edit:
-            ${formatTanggal(
-                ambil(item,"Tanggal Selesai Edit ")
-            )}
+            ${item["Tanggal Selesai Edit "] || "-"}
             </p>
 
 
@@ -183,50 +239,10 @@ function tampilkanKontenTerbaru(data){
     });
 
 
-}
-
-
-
-
-// ==============================
-// AMBIL DATA KOLOM
-// ==============================
-
-function ambil(obj,nama){
-
-    return obj[nama] || "-";
 
 }
 
 
 
-
-// ==============================
-// FORMAT TANGGAL
-// ==============================
-
-function formatTanggal(tanggal){
-
-
-    if(!tanggal)
-        return "-";
-
-
-    let date = new Date(tanggal);
-
-
-    if(isNaN(date))
-        return tanggal;
-
-
-
-    return date.toLocaleDateString("id-ID");
-
-}
-
-
-
-
-// JALANKAN SAAT WEBSITE DIBUKA
 
 loadData();
