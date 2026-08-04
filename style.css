@@ -1,62 +1,170 @@
 *{
-
-margin:0;
-padding:0;
-box-sizing:border-box;
-
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
-
 
 
 body{
 
-font-family:
-Inter,
-Arial,
-sans-serif;
+    font-family:
+    "Inter",
+    Arial,
+    sans-serif;
 
-background:#F6F7FB;
+    background:#F5F7FB;
 
-color:#1F2937;
+    color:#111827;
 
-padding-bottom:90px;
+    min-height:100vh;
+
+    padding-bottom:100px;
 
 }
 
+
+
+/* SPLASH */
+
+.splash{
+
+    position:fixed;
+
+    inset:0;
+
+    background:
+    linear-gradient(
+        135deg,
+        #092D76,
+        #2563EB
+    );
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:99;
+
+    animation:
+    splashOut 1.8s ease forwards;
+
+}
+
+
+
+.logo{
+
+    color:white;
+
+    font-size:42px;
+
+    font-weight:800;
+
+    text-align:center;
+
+    animation:
+    logoIn .8s ease;
+
+}
+
+
+.logo span{
+
+    display:block;
+
+    font-size:16px;
+
+    font-weight:400;
+
+    opacity:.8;
+
+    margin-top:8px;
+
+}
+
+
+
+@keyframes logoIn{
+
+from{
+
+transform:scale(.7);
+
+opacity:0;
+
+}
+
+to{
+
+transform:scale(1);
+
+opacity:1;
+
+}
+
+}
+
+
+
+@keyframes splashOut{
+
+0%,70%{
+
+opacity:1;
+
+}
+
+100%{
+
+opacity:0;
+
+visibility:hidden;
+
+}
+
+}
+
+
+
+
+
+/* HEADER */
 
 
 header{
 
 background:
+
 linear-gradient(
 135deg,
 #092D76,
-#174EA6
+#1649A0
 );
+
+
+padding:
+
+35px 22px
+80px;
+
+
+border-radius:
+
+0 0 40px 40px;
 
 
 color:white;
 
-padding:30px 20px;
-
-border-radius:
-0 0 30px 30px;
 
 }
 
 
 
-header h1{
+.hello{
 
-font-size:24px;
-
-margin-bottom:8px;
-
-}
-
-
-
-header p{
+font-size:15px;
 
 opacity:.8;
 
@@ -64,99 +172,241 @@ opacity:.8;
 
 
 
-.container{
+header h1{
 
-padding:20px;
+font-size:32px;
+
+margin-top:8px;
+
+}
+
+
+.subtitle{
+
+margin-top:8px;
+
+opacity:.75;
 
 }
 
 
 
 
-.stats{
+/* MAIN */
+
+
+main{
+
+padding:20px;
+
+margin-top:-50px;
+
+}
+
+
+
+
+/* GRID */
+
+
+.grid{
 
 display:grid;
 
 grid-template-columns:
+
 repeat(2,1fr);
 
-gap:15px;
 
-margin-top:-20px;
+gap:16px;
 
 }
 
 
 
 
-.stat-card{
 
-background:white;
+/* CARD */
+
+
+.card{
+
+background:
+
+rgba(255,255,255,.9);
+
+
+border-radius:26px;
+
 
 padding:20px;
 
-border-radius:22px;
 
 box-shadow:
-0 8px 25px rgba(0,0,0,.06);
+
+0 15px 35px rgba(0,0,0,.08);
+
+
+animation:
+
+cardUp .7s ease;
+
+
+transition:.3s;
+
+
+position:relative;
+
+
+overflow:hidden;
+
 
 }
 
 
 
-.stat-card h2{
+.card:hover{
 
-font-size:32px;
+transform:
+
+translateY(-6px);
 
 }
 
 
 
-.stat-card p{
 
-color:#6B7280;
+
+.card::after{
+
+content:"";
+
+position:absolute;
+
+width:100px;
+
+height:100px;
+
+right:-40px;
+
+top:-40px;
+
+border-radius:50%;
+
+opacity:.12;
+
+}
+
+
+
+
+.process::after{
+
+background:#FACC15;
+
+}
+
+
+.stock::after{
+
+background:#2563EB;
+
+}
+
+
+.upload::after{
+
+background:#22C55E;
+
+}
+
+
+.booster::after{
+
+background:#A855F7;
+
+}
+
+
+
+
+.icon{
+
+font-size:30px;
+
+margin-bottom:15px;
+
+}
+
+
+
+
+.card h2{
+
+font-size:34px;
+
+}
+
+
+.card p{
+
+font-weight:700;
 
 margin-top:5px;
 
 }
 
 
+.card span{
 
-.yellow h2{
+font-size:12px;
 
-color:#EAB308;
-
-}
-
-
-.blue h2{
-
-color:#2563EB;
-
-}
-
-
-.green h2{
-
-color:#16A34A;
-
-}
-
-
-.purple h2{
-
-color:#9333EA;
+color:#6B7280;
 
 }
 
 
 
+@keyframes cardUp{
 
-.section-title{
+from{
 
-margin:
+opacity:0;
 
-30px 0 15px;
+transform:
+translateY(30px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:
+translateY(0);
+
+}
+
+}
+
+
+
+
+
+/* ACTIVITY */
+
+
+.activity{
+
+margin-top:35px;
+
+}
+
+
+
+.activity h2{
+
+margin-bottom:15px;
 
 }
 
@@ -166,30 +416,45 @@ margin:
 
 background:white;
 
+
+border-radius:22px;
+
+
 padding:18px;
 
-border-radius:20px;
 
 display:flex;
 
+
 gap:15px;
+
 
 align-items:center;
 
-margin-bottom:15px;
+
+margin-bottom:14px;
+
 
 box-shadow:
-0 5px 20px rgba(0,0,0,.05);
+
+0 10px 25px rgba(0,0,0,.05);
+
+
+animation:
+
+cardUp .8s ease;
+
 
 }
 
 
 
-.icon{
+.activity-card div{
 
 font-size:28px;
 
 }
+
 
 
 .activity-card h3{
@@ -213,67 +478,45 @@ margin-top:5px;
 
 
 
-.bottom-nav{
+
+/* BOTTOM NAV */
+
+
+nav{
 
 position:fixed;
 
-bottom:15px;
 
-left:15px;
-
-right:15px;
+bottom:18px;
 
 
-height:70px;
+left:18px;
+
+
+right:18px;
+
+
+height:75px;
 
 
 background:white;
 
 
-border-radius:25px;
+border-radius:28px;
 
 
 display:flex;
 
+
 justify-content:space-around;
+
 
 align-items:center;
 
 
 box-shadow:
-0 10px 30px rgba(0,0,0,.12);
+
+0 20px 40px rgba(0,0,0,.15);
 
 
-}
-
-
-
-.bottom-nav a{
-
-text-align:center;
-
-font-size:12px;
-
-color:#9CA3AF;
-
-}
-
-
-
-.bottom-nav span{
-
-display:block;
-
-margin-top:4px;
-
-}
-
-
-
-.bottom-nav .active{
-
-color:#092D76;
-
-font-weight:bold;
-
-}
+z
