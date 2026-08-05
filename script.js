@@ -1,931 +1,468 @@
-/* ==========================================================
-   CBM SOCIAL REPORT
-   Production Version
-========================================================== */
-
-const API_URL =
-"https://script.google.com/macros/s/AKfycbwtoUQAPS1Trbt69ZranpTkm3R7NA_cmu2YTeh5_hUMe7GijgarvFLs8D0Ye1deXldzjA/exec";
+/*************************************************
+ CBM SOCIAL REPORT
+ Frontend Data Controller
+*************************************************/
 
 
-/* ==========================================================
-   GLOBAL STATE
-========================================================== */
+const API_URL = 
+"https://script.google.com/macros/s/AKfycbzqkMeq70pXCoZPKAlqzHBlCVVgXPoPQpbiesSigkMQacH6cZNpUHC57jPa2cNUovX8nQ/exec";
 
-let appData = {
 
-    onProcess: [],
-
-    stock: [],
-
-    upload: [],
-
-    booster: []
-
+let dashboardData = {
+  onProcess: [],
+  stock: [],
+  upload: [],
+  boosterLive: []
 };
 
-let currentPage = "home";
-
-let filteredData = [];
 
 
-/* ==========================================================
-   DOM
-========================================================== */
-
-const dashboardGrid = document.getElementById("dashboardGrid");
-
-const contentArea = document.getElementById("contentArea");
-
-const searchInput = document.getElementById("searchInput");
-
-const loading = document.getElementById("loading");
-
-const toast = document.getElementById("toast");
-
-const pageTitle = document.getElementById("pageTitle");
-
-const sidebarMenu =
-document.querySelectorAll(".menu-item");
-
-const bottomMenu =
-document.querySelectorAll(".bottom-item");
+document.addEventListener(
+  "DOMContentLoaded",
+  loadDashboard
+);
 
 
-/* ==========================================================
-   INIT
-========================================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
-
-    init();
-
-});
+async function loadDashboard(){
 
 
-async function init(){
+  showLoading();
 
-    bindMenu();
 
-    bindSearch();
 
-    rippleEffect();
+  try {
 
-    await loadData();
+
+    const response =
+      await fetch(API_URL);
+
+
+
+    const data =
+      await response.json();
+
+
+
+    dashboardData = data;
+
+
+
+    renderHome();
+
+
+
+    renderOnProcess();
+
+
+
+    renderStock();
+
+
+
+    renderUpload();
+
+
+
+    renderBooster();
+
+
+
+    hideLoading();
+
+
+
+  }
+
+
+  catch(error){
+
+
+    console.error(error);
+
+
+
+    showError(
+      "Gagal mengambil data"
+    );
+
+
+  }
+
 
 }
 
 
-/* ==========================================================
-   LOAD DATA
-========================================================== */
-
-async function loadData(){
-
-    showLoading();
-
-    try{
-
-        const response = await fetch(API_URL);
-
-        if(!response.ok){
-
-            throw new Error("API Error");
-
-        }
-
-        const json = await response.json();
-
-        appData.onProcess =
-            json.onProcess || [];
-
-        appData.stock =
-            json.stock || [];
-
-        appData.upload =
-            json.upload || [];
-
-        appData.booster =
-            json.booster || [];
-
-        renderHome();
-
-        hideLoading();
-
-    }
-
-    catch(error){
-
-        hideLoading();
-
-        console.error(error);
-
-        showToast("Gagal mengambil data");
-
-    }
-
-}
 
 
-/* ==========================================================
-   HOME
-========================================================== */
+
+/*************************************************
+ HOME
+*************************************************/
+
 
 function renderHome(){
 
-    currentPage = "home";
 
-    pageTitle.textContent = "Dashboard";
+  setCounter(
+    "total-process",
+    dashboardData.onProcess.length
+  );
 
-    renderDashboardCards();
 
-    renderLatestUpload();
+  setCounter(
+    "total-stock",
+    dashboardData.stock.length
+  );
+
+
+  setCounter(
+    "total-upload",
+    dashboardData.upload.length
+  );
+
+
+  setCounter(
+    "total-booster",
+    dashboardData.boosterLive.length
+  );
+
 
 }
 
 
-/* ==========================================================
-   DASHBOARD CARDS
-========================================================== */
 
-function renderDashboardCards(){
 
-    dashboardGrid.innerHTML = "";
 
-    const cards = [
+/*************************************************
+ ON PROCESS
+*************************************************/
 
-        {
 
-            title:"On Process",
+function renderOnProcess(){
 
-            value:appData.onProcess.length,
 
-            icon:"fa-pen-to-square"
+ const container =
+ document.querySelector(
+  "#on-process-list"
+ );
 
-        },
 
-        {
+ if(!container) return;
 
-            title:"Stock",
 
-            value:appData.stock.length,
 
-            icon:"fa-box"
+ container.innerHTML = "";
 
-        },
 
-        {
 
-            title:"Upload",
+ dashboardData.onProcess
+ .slice(0,20)
+ .forEach(item=>{
 
-            value:appData.upload.length,
 
-            icon:"fa-film"
+  container.innerHTML += `
 
-        },
+  <div class="content-card">
 
-        {
 
-            title:"Booster",
+    <h3>
+      ${item["Judul Konten"] || "-"}
+    </h3>
 
-            value:appData.booster.length,
 
-            icon:"fa-rocket"
+    <p>
+    Editor:
+    ${item["Editor"] || "-"}
+    </p>
 
-        }
 
-    ];
+    <span>
+    ${item["Status"] || "On Process"}
+    </span>
 
-    cards.forEach(card=>{
 
-        dashboardGrid.innerHTML += `
+  </div>
 
-        <div class="card fade-in">
+  `;
 
-            <div class="stat-card">
 
-                <div class="stat-left">
+ });
 
-                    <div class="stat-title">
-
-                        ${card.title}
-
-                    </div>
-
-                    <div class="stat-value counter">
-
-                        ${card.value}
-
-                    </div>
-
-                </div>
-
-                <div class="stat-icon">
-
-                    <i class="fa-solid ${card.icon}"></i>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        `;
-
-    });
-
-    animateCounter();
 
 }
 
 
-/* ==========================================================
-   LATEST UPLOAD
-========================================================== */
 
-function renderLatestUpload(){
 
-    contentArea.innerHTML = "";
 
-    const latest =
-    [...appData.upload].reverse();
+/*************************************************
+ STOCK
+*************************************************/
 
-    latest.slice(0,8).forEach(item=>{
 
-        contentArea.innerHTML += `
+function renderStock(){
 
-        <div class="card fade-in">
 
-            <div class="content-card">
+ const container =
+ document.querySelector(
+ "#stock-list"
+ );
 
-                <h3>
 
-                    ${item.Judul || "-"}
+ if(!container) return;
 
-                </h3>
 
-                <p>
 
-                    ${item.Editor || "-"}
+ container.innerHTML = "";
 
-                </p>
 
-                <div class="content-meta">
 
-                    <span class="meta">
+ dashboardData.stock
+ .forEach(item=>{
 
-                        ${item.Akun || "-"}
 
-                    </span>
+ container.innerHTML += `
 
-                    <span class="meta">
 
-                        ${item["Tanggal Upload"] || "-"}
+ <div class="content-card">
 
-                    </span>
 
-                </div>
+ <h3>
+ ${item["Judul Konten"] || "-"}
+ </h3>
 
-            </div>
 
-        </div>
+ <p>
+ Editor:
+ ${item["Editor"] || "-"}
+ </p>
 
-        `;
 
-    });
+ <p>
+ Akun:
+ ${item["Akun Tiktok"] || "-"}
+ </p>
+
+
+ </div>
+
+
+ `;
+
+
+ });
+
 
 }
 
 
-/* ==========================================================
-   MENU
-========================================================== */
 
-function bindMenu(){
 
-    [...sidebarMenu,...bottomMenu].forEach(btn=>{
 
-        btn.addEventListener("click",()=>{
+/*************************************************
+ UPLOAD
+*************************************************/
 
-            changePage(
-                btn.dataset.page
-            );
 
-        });
+function renderUpload(){
 
-    });
+
+ const container =
+ document.querySelector(
+ "#upload-list"
+ );
+
+
+ if(!container) return;
+
+
+
+ container.innerHTML="";
+
+
+
+ dashboardData.upload
+ .slice(0,30)
+ .forEach(item=>{
+
+
+ let booster =
+ item["Jenis Booster"] || 
+ "Tanpa Booster";
+
+
+
+ container.innerHTML += `
+
+
+ <div class="content-card">
+
+
+ <h3>
+ ${item["Judul Konten"] || "-"}
+ </h3>
+
+
+ <p>
+ Akun:
+ ${item["Akun Tiktok"] || "-"}
+ </p>
+
+
+ <p>
+ Booster:
+ ${booster}
+ </p>
+
+
+ <a href="${item["Link Konten"] || "#"}"
+ target="_blank">
+
+ Lihat Konten
+
+ </a>
+
+
+ </div>
+
+
+ `;
+
+
+ });
+
 
 }
 
 
-function changePage(page){
 
-    sidebarMenu.forEach(btn=>{
 
-        btn.classList.remove("active");
 
-        if(btn.dataset.page===page){
 
-            btn.classList.add("active");
+/*************************************************
+ BOOSTER LIVE
+*************************************************/
 
-        }
 
-    });
+function renderBooster(){
 
-    bottomMenu.forEach(btn=>{
 
-        btn.classList.remove("active");
+ const container =
+ document.querySelector(
+ "#booster-list"
+ );
 
-        if(btn.dataset.page===page){
 
-            btn.classList.add("active");
+ if(!container) return;
 
-        }
 
-    });
 
-    switch(page){
+ container.innerHTML="";
 
-        case "home":
 
-            renderHome();
 
-        break;
+ dashboardData.boosterLive
+ .forEach(item=>{
 
-        case "onprocess":
 
-            renderOnProcess();
+ container.innerHTML += `
 
-        break;
 
-        case "stock":
+ <div class="content-card">
 
-            renderStock();
 
-        break;
+ <h3>
+ ${item["CABANG YANG DI BOOSTER"] || "-"}
+ </h3>
 
-        case "upload":
 
-            renderUpload();
+ <p>
+ Tanggal:
+ ${item["TANGGAL BOOSTER"] || "-"}
+ </p>
 
-        break;
 
-        case "booster":
+ <p>
+ Budget:
+ ${item["BUDGET BOOSTER"] || "-"}
+ </p>
 
-            renderBooster();
 
-        break;
+ <p>
+ Host:
+ ${item["HOST LIVE"] || "-"}
+ </p>
 
-    }
 
-}
-/* ==========================================================
-   ON PROCESS
-========================================================== */
+ </div>
 
-function renderOnProcess() {
 
-    currentPage = "onprocess";
+ `;
 
-    pageTitle.textContent = "On Process";
 
-    dashboardGrid.innerHTML = "";
+ });
 
-    contentArea.innerHTML = "";
-
-    appData.onProcess.forEach(item => {
-
-        contentArea.innerHTML += createContentCard(item);
-
-    });
 
 }
 
 
-/* ==========================================================
-   STOCK
-========================================================== */
-
-function renderStock() {
-
-    currentPage = "stock";
-
-    pageTitle.textContent = "Stock";
-
-    dashboardGrid.innerHTML = "";
-
-    contentArea.innerHTML = "";
-
-    appData.stock.forEach(item => {
-
-        contentArea.innerHTML += createContentCard(item);
-
-    });
-
-}
 
 
-/* ==========================================================
-   UPLOAD
-========================================================== */
 
-function renderUpload() {
+/*************************************************
+ UTILITIES
+*************************************************/
 
-    currentPage = "upload";
 
-    pageTitle.textContent = "Upload";
+function setCounter(id,value){
 
-    dashboardGrid.innerHTML = "";
 
-    contentArea.innerHTML = "";
+ const el =
+ document.getElementById(id);
 
-    appData.upload.forEach(item => {
 
-        contentArea.innerHTML += createUploadCard(item);
 
-    });
+ if(el){
+
+  el.innerText=value;
+
+ }
 
 }
 
 
-/* ==========================================================
-   BOOSTER
-========================================================== */
 
-function renderBooster() {
+function showLoading(){
 
-    currentPage = "booster";
+ const loader =
+ document.querySelector(
+ ".loading"
+ );
 
-    pageTitle.textContent = "Booster";
-
-    dashboardGrid.innerHTML = "";
-
-    contentArea.innerHTML = "";
-
-    appData.booster.forEach(item => {
-
-        contentArea.innerHTML += createUploadCard(item);
-
-    });
+ if(loader)
+ loader.style.display="block";
 
 }
 
 
-/* ==========================================================
-   CARD ON PROCESS & STOCK
-========================================================== */
 
-function createContentCard(item) {
+function hideLoading(){
 
-    return `
+ const loader =
+ document.querySelector(
+ ".loading"
+ );
 
-    <div class="card fade-in">
-
-        <div class="content-card">
-
-            <h3>${item.Judul || "-"}</h3>
-
-            <p>${item.Editor || "-"}</p>
-
-            <div class="content-meta">
-
-                <span class="meta">
-                    ${item.Akun || "-"}
-                </span>
-
-                <span class="meta">
-                    ${item["Tanggal Edit"] || "-"}
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    `;
+ if(loader)
+ loader.style.display="none";
 
 }
 
 
-/* ==========================================================
-   CARD UPLOAD
-========================================================== */
 
-function createUploadCard(item) {
+function showError(message){
 
-    return `
-
-    <div class="card fade-in">
-
-        <div class="content-card">
-
-            <h3>${item.Judul || "-"}</h3>
-
-            <p>
-
-                👤 ${item.Editor || "-"}
-
-            </p>
-
-            <div class="content-meta">
-
-                <span class="badge primary">
-
-                    ${item.Akun || "-"}
-
-                </span>
-
-                <span class="badge success">
-
-                    👁 ${item["Views After"] || 0}
-
-                </span>
-
-                <span class="badge warning">
-
-                    ❤️ ${item["Likes After"] || 0}
-
-                </span>
-
-                <span class="badge danger">
-
-                    💬 ${item["Komentar After"] || 0}
-
-                </span>
-
-            </div>
-
-            ${
-                item["Link TikTok"]
-                ?
-
-                `
-
-                <a
-                    href="${item["Link TikTok"]}"
-                    target="_blank"
-                    class="meta">
-
-                    🎬 Buka TikTok
-
-                </a>
-
-                `
-
-                :
-
-                ""
-
-            }
-
-        </div>
-
-    </div>
-
-    `;
+ console.log(message);
 
 }
-
-
-/* ==========================================================
-   SEARCH
-========================================================== */
-
-function bindSearch() {
-
-    searchInput.addEventListener("input", searchData);
-
-}
-
-
-function searchData() {
-
-    const keyword =
-    searchInput.value.toLowerCase();
-
-    let source = [];
-
-    switch(currentPage){
-
-        case "home":
-
-            renderHome();
-
-            return;
-
-        case "onprocess":
-
-            source = appData.onProcess;
-
-        break;
-
-        case "stock":
-
-            source = appData.stock;
-
-        break;
-
-        case "upload":
-
-            source = appData.upload;
-
-        break;
-
-        case "booster":
-
-            source = appData.booster;
-
-        break;
-
-    }
-
-    const result = source.filter(item =>
-
-        JSON.stringify(item)
-        .toLowerCase()
-        .includes(keyword)
-
-    );
-
-    contentArea.innerHTML = "";
-
-    result.forEach(item=>{
-
-        if(currentPage==="upload" || currentPage==="booster"){
-
-            contentArea.innerHTML += createUploadCard(item);
-
-        }else{
-
-            contentArea.innerHTML += createContentCard(item);
-
-        }
-
-    });
-
-}
-/* ==========================================================
-   COUNTER ANIMATION
-========================================================== */
-
-function animateCounter() {
-
-    const counters =
-    document.querySelectorAll(".counter");
-
-    counters.forEach(counter => {
-
-        const target =
-        Number(counter.innerText) || 0;
-
-        let current = 0;
-
-        const increment =
-        Math.max(1, Math.ceil(target / 40));
-
-        const timer = setInterval(() => {
-
-            current += increment;
-
-            if (current >= target) {
-
-                current = target;
-
-                clearInterval(timer);
-
-            }
-
-            counter.innerText =
-            current.toLocaleString("id-ID");
-
-        }, 20);
-
-    });
-
-}
-
-
-/* ==========================================================
-   LOADING
-========================================================== */
-
-function showLoading() {
-
-    loading.classList.add("show");
-
-}
-
-function hideLoading() {
-
-    loading.classList.remove("show");
-
-}
-
-
-/* ==========================================================
-   TOAST
-========================================================== */
-
-function showToast(message = "") {
-
-    toast.innerText = message;
-
-    toast.classList.add("show");
-
-    clearTimeout(window.toastTimer);
-
-    window.toastTimer = setTimeout(() => {
-
-        toast.classList.remove("show");
-
-    }, 3000);
-
-}
-
-
-/* ==========================================================
-   RIPPLE EFFECT
-========================================================== */
-
-function rippleEffect() {
-
-    document.addEventListener("click", e => {
-
-        const button =
-        e.target.closest(".ripple");
-
-        if (!button) return;
-
-        const circle =
-        document.createElement("span");
-
-        const size =
-        Math.max(button.clientWidth, button.clientHeight);
-
-        const rect =
-        button.getBoundingClientRect();
-
-        circle.style.width = size + "px";
-        circle.style.height = size + "px";
-
-        circle.style.left =
-            e.clientX - rect.left - size / 2 + "px";
-
-        circle.style.top =
-            e.clientY - rect.top - size / 2 + "px";
-
-        button.appendChild(circle);
-
-        setTimeout(() => {
-
-            circle.remove();
-
-        }, 600);
-
-    });
-
-}
-
-
-/* ==========================================================
-   FAB
-========================================================== */
-
-const fab =
-document.getElementById("fab");
-
-if (fab) {
-
-    fab.addEventListener("click", () => {
-
-        showToast("Feature coming soon");
-
-    });
-
-}
-
-
-/* ==========================================================
-   FORMAT NUMBER
-========================================================== */
-
-function formatNumber(value) {
-
-    if (!value) return "0";
-
-    return Number(value)
-    .toLocaleString("id-ID");
-
-}
-
-
-/* ==========================================================
-   FORMAT DATE
-========================================================== */
-
-function formatDate(date) {
-
-    if (!date) return "-";
-
-    const d = new Date(date);
-
-    if (isNaN(d)) return date;
-
-    return d.toLocaleDateString("id-ID", {
-
-        day: "2-digit",
-
-        month: "short",
-
-        year: "numeric"
-
-    });
-
-}
-
-
-/* ==========================================================
-   EMPTY STATE
-========================================================== */
-
-function showEmptyState(message = "Data tidak ditemukan") {
-
-    contentArea.innerHTML = `
-
-        <div class="card fade-in">
-
-            <div class="content-card">
-
-                <h3>📭 Tidak Ada Data</h3>
-
-                <p>${message}</p>
-
-            </div>
-
-        </div>
-
-    `;
-
-}
-
-
-/* ==========================================================
-   REFRESH
-========================================================== */
-
-async function refreshData() {
-
-    await loadData();
-
-    showToast("Data berhasil diperbarui");
-
-}
-
-
-/* ==========================================================
-   AUTO REFRESH
-========================================================== */
-
-// Refresh setiap 5 menit
-
-setInterval(() => {
-
-    refreshData();
-
-}, 300000);
-
-
-/* ==========================================================
-   SHORTCUT
-========================================================== */
-
-document.addEventListener("keydown", e => {
-
-    // Ctrl + R
-
-    if (e.ctrlKey && e.key === "r") {
-
-        e.preventDefault();
-
-        refreshData();
-
-    }
-
-});
-
-
-/* ==========================================================
-   DEBUG
-========================================================== */
-
-console.log(
-    "%cCBM Social Report",
-    "color:#2563eb;font-size:18px;font-weight:bold;"
-);
-
-console.log("Application Ready");
-
-
-/* ==========================================================
-   END
-========================================================== */
