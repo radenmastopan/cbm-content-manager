@@ -1,93 +1,153 @@
 /*************************************************
  CBM SOCIAL REPORT
- Frontend Data Controller
+ Frontend Controller
 *************************************************/
 
 
-const API_URL = 
-"https://script.google.com/macros/s/AKfycbzqkMeq70pXCoZPKAlqzHBlCVVgXPoPQpbiesSigkMQacH6cZNpUHC57jPa2cNUovX8nQ/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbzqkMeq70pXCoZPKAlqHBlCVVgXPoPQpbiesSigkMQacH6cZNpUHC57jPa2cNUovX8nQ/exec";
 
 
-let dashboardData = {
-  onProcess: [],
-  stock: [],
-  upload: [],
-  boosterLive: []
+let dataStore = {
+
+    onProcess: [],
+    stock: [],
+    upload: [],
+    boosterLive: []
+
 };
+
+
+let currentPage = "home";
 
 
 
 document.addEventListener(
-  "DOMContentLoaded",
-  loadDashboard
+    "DOMContentLoaded",
+    () => {
+
+        loadData();
+
+        setupNavigation();
+
+        setupSearch();
+
+    }
 );
 
 
 
-async function loadDashboard(){
 
 
-  showLoading();
+/*
+====================================
+ FETCH DATA
+====================================
+*/
 
 
-
-  try {
-
-
-    const response =
-      await fetch(API_URL);
+async function loadData(){
 
 
-
-    const data =
-      await response.json();
+    showLoading();
 
 
-
-    dashboardData = data;
-
+    try {
 
 
-    renderHome();
+        const res =
+            await fetch(API_URL);
 
 
 
-    renderOnProcess();
+        dataStore =
+            await res.json();
 
 
 
-    renderStock();
+        renderPage("home");
 
 
 
-    renderUpload();
+    } catch(error){
 
 
+        console.error(
+            "API Error:",
+            error
+        );
 
-    renderBooster();
 
+        showToast(
+            "Gagal mengambil data"
+        );
+
+
+    }
 
 
     hideLoading();
 
 
-
-  }
-
-
-  catch(error){
-
-
-    console.error(error);
+}
 
 
 
-    showError(
-      "Gagal mengambil data"
+
+
+
+
+/*
+====================================
+ NAVIGATION
+====================================
+*/
+
+
+function setupNavigation(){
+
+
+    const buttons =
+    document.querySelectorAll(
+        "[data-page]"
     );
 
 
-  }
+
+    buttons.forEach(btn=>{
+
+
+        btn.addEventListener(
+            "click",
+            ()=>{
+
+
+                const page =
+                btn.dataset.page;
+
+
+
+                currentPage =
+                page;
+
+
+
+                setActiveMenu(
+                    page
+                );
+
+
+
+                renderPage(
+                    page
+                );
+
+
+            }
+        );
+
+
+    });
 
 
 }
@@ -96,241 +156,34 @@ async function loadDashboard(){
 
 
 
-/*************************************************
- HOME
-*************************************************/
 
+function setActiveMenu(page){
 
-function renderHome(){
 
+    document
+    .querySelectorAll(
+        ".menu-item, .bottom-item"
+    )
+    .forEach(item=>{
 
-  setCounter(
-    "total-process",
-    dashboardData.onProcess.length
-  );
 
+        item.classList.remove(
+            "active"
+        );
 
-  setCounter(
-    "total-stock",
-    dashboardData.stock.length
-  );
 
+        if(item.dataset.page === page){
 
-  setCounter(
-    "total-upload",
-    dashboardData.upload.length
-  );
 
+            item.classList.add(
+                "active"
+            );
 
-  setCounter(
-    "total-booster",
-    dashboardData.boosterLive.length
-  );
 
+        }
 
-}
 
-
-
-
-
-/*************************************************
- ON PROCESS
-*************************************************/
-
-
-function renderOnProcess(){
-
-
- const container =
- document.querySelector(
-  "#on-process-list"
- );
-
-
- if(!container) return;
-
-
-
- container.innerHTML = "";
-
-
-
- dashboardData.onProcess
- .slice(0,20)
- .forEach(item=>{
-
-
-  container.innerHTML += `
-
-  <div class="content-card">
-
-
-    <h3>
-      ${item["Judul Konten"] || "-"}
-    </h3>
-
-
-    <p>
-    Editor:
-    ${item["Editor"] || "-"}
-    </p>
-
-
-    <span>
-    ${item["Status"] || "On Process"}
-    </span>
-
-
-  </div>
-
-  `;
-
-
- });
-
-
-}
-
-
-
-
-
-/*************************************************
- STOCK
-*************************************************/
-
-
-function renderStock(){
-
-
- const container =
- document.querySelector(
- "#stock-list"
- );
-
-
- if(!container) return;
-
-
-
- container.innerHTML = "";
-
-
-
- dashboardData.stock
- .forEach(item=>{
-
-
- container.innerHTML += `
-
-
- <div class="content-card">
-
-
- <h3>
- ${item["Judul Konten"] || "-"}
- </h3>
-
-
- <p>
- Editor:
- ${item["Editor"] || "-"}
- </p>
-
-
- <p>
- Akun:
- ${item["Akun Tiktok"] || "-"}
- </p>
-
-
- </div>
-
-
- `;
-
-
- });
-
-
-}
-
-
-
-
-
-/*************************************************
- UPLOAD
-*************************************************/
-
-
-function renderUpload(){
-
-
- const container =
- document.querySelector(
- "#upload-list"
- );
-
-
- if(!container) return;
-
-
-
- container.innerHTML="";
-
-
-
- dashboardData.upload
- .slice(0,30)
- .forEach(item=>{
-
-
- let booster =
- item["Jenis Booster"] || 
- "Tanpa Booster";
-
-
-
- container.innerHTML += `
-
-
- <div class="content-card">
-
-
- <h3>
- ${item["Judul Konten"] || "-"}
- </h3>
-
-
- <p>
- Akun:
- ${item["Akun Tiktok"] || "-"}
- </p>
-
-
- <p>
- Booster:
- ${booster}
- </p>
-
-
- <a href="${item["Link Konten"] || "#"}"
- target="_blank">
-
- Lihat Konten
-
- </a>
-
-
- </div>
-
-
- `;
-
-
- });
+    });
 
 
 }
@@ -340,68 +193,138 @@ function renderUpload(){
 
 
 
-/*************************************************
- BOOSTER LIVE
-*************************************************/
+/*
+====================================
+ RENDER PAGE
+====================================
+*/
 
 
-function renderBooster(){
+function renderPage(page){
 
 
- const container =
- document.querySelector(
- "#booster-list"
- );
-
-
- if(!container) return;
-
-
-
- container.innerHTML="";
+    const title =
+    document.getElementById(
+        "pageTitle"
+    );
 
 
 
- dashboardData.boosterLive
- .forEach(item=>{
+    const grid =
+    document.getElementById(
+        "dashboardGrid"
+    );
 
 
- container.innerHTML += `
+
+    const content =
+    document.getElementById(
+        "contentArea"
+    );
 
 
- <div class="content-card">
+
+    grid.innerHTML = "";
+
+    content.innerHTML = "";
 
 
- <h3>
- ${item["CABANG YANG DI BOOSTER"] || "-"}
- </h3>
 
 
- <p>
- Tanggal:
- ${item["TANGGAL BOOSTER"] || "-"}
- </p>
+    if(page === "home"){
 
 
- <p>
- Budget:
- ${item["BUDGET BOOSTER"] || "-"}
- </p>
+        title.innerText =
+        "Dashboard";
 
 
- <p>
- Host:
- ${item["HOST LIVE"] || "-"}
- </p>
+
+        renderStats();
 
 
- </div>
+
+        renderRecentUpload();
 
 
- `;
+        return;
 
 
- });
+    }
+
+
+
+
+    if(page === "onprocess"){
+
+
+        title.innerText =
+        "On Process";
+
+
+        renderCards(
+            dataStore.onProcess,
+            "onprocess"
+        );
+
+
+    }
+
+
+
+
+
+    if(page === "stock"){
+
+
+        title.innerText =
+        "Stock Konten";
+
+
+        renderCards(
+            dataStore.stock,
+            "stock"
+        );
+
+
+    }
+
+
+
+
+
+    if(page === "upload"){
+
+
+        title.innerText =
+        "Konten Terupload";
+
+
+        renderCards(
+            dataStore.upload,
+            "upload"
+        );
+
+
+    }
+
+
+
+
+
+    if(page === "booster"){
+
+
+        title.innerText =
+        "Booster Live";
+
+
+        renderCards(
+            dataStore.boosterLive,
+            "booster"
+        );
+
+
+    }
 
 
 }
@@ -410,38 +333,477 @@ function renderBooster(){
 
 
 
-/*************************************************
- UTILITIES
-*************************************************/
-
-
-function setCounter(id,value){
-
-
- const el =
- document.getElementById(id);
 
 
 
- if(el){
+/*
+====================================
+ DASHBOARD HOME
+====================================
+*/
 
-  el.innerText=value;
 
- }
+function renderStats(){
+
+
+const grid =
+document.getElementById(
+"dashboardGrid"
+);
+
+
+
+const cards = [
+
+
+{
+title:"On Process",
+value:dataStore.onProcess.length,
+icon:"fa-pen-to-square"
+},
+
+
+{
+title:"Stock",
+value:dataStore.stock.length,
+icon:"fa-box"
+},
+
+
+{
+title:"Upload",
+value:dataStore.upload.length,
+icon:"fa-film"
+},
+
+
+{
+title:"Booster Live",
+value:dataStore.boosterLive.length,
+icon:"fa-rocket"
+}
+
+
+];
+
+
+
+
+
+cards.forEach(card=>{
+
+
+grid.innerHTML += `
+
+<div class="stat-card card ripple">
+
+
+<i class="fa-solid ${card.icon}">
+</i>
+
+
+<div>
+
+<h3>
+${card.title}
+</h3>
+
+
+<h2>
+${card.value}
+</h2>
+
+
+</div>
+
+
+</div>
+
+`;
+
+
+});
+
 
 }
 
+
+
+
+
+
+
+
+function renderRecentUpload(){
+
+
+const area =
+document.getElementById(
+"contentArea"
+);
+
+
+
+area.innerHTML = `
+
+<h2>
+Upload Terbaru
+</h2>
+
+<div class="card-grid" id="uploadPreview">
+
+</div>
+
+`;
+
+
+
+const box =
+document.getElementById(
+"uploadPreview"
+);
+
+
+
+dataStore.upload
+.slice(0,6)
+.forEach(item=>{
+
+
+box.innerHTML += createCard(
+item,
+"upload"
+);
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+/*
+====================================
+ CARD RENDER
+====================================
+*/
+
+
+function renderCards(data,type){
+
+
+const area =
+document.getElementById(
+"contentArea"
+);
+
+
+
+area.innerHTML = `
+
+<div class="card-grid">
+
+${
+
+data.map(item=>
+
+createCard(
+item,
+type
+)
+
+).join("")
+
+}
+
+</div>
+
+`;
+
+
+
+}
+
+
+
+
+
+
+function createCard(item,type){
+
+
+
+let title="-";
+
+let body="";
+
+
+
+
+
+if(type==="onprocess"){
+
+
+title =
+item["Judul Konten"] || "-";
+
+
+body = `
+
+<p>
+Editor:
+${item["Editor"] || "-"}
+</p>
+
+
+<p>
+Status:
+${item["Status"] || "-"}
+</p>
+
+`;
+
+
+
+}
+
+
+
+
+if(type==="stock"){
+
+
+title =
+item["Judul Konten"] || "-";
+
+
+body = `
+
+<p>
+Editor:
+${item["Editor"] || "-"}
+</p>
+
+
+<p>
+Akun:
+${item["Akun Tiktok"] || "-"}
+</p>
+
+`;
+
+
+
+}
+
+
+
+
+
+if(type==="upload"){
+
+
+title =
+item["Judul Konten"] || "-";
+
+
+body = `
+
+<p>
+Akun:
+${item["Akun Tiktok"] || "-"}
+</p>
+
+
+<p>
+Booster:
+${item["Jenis Booster"] || "-"}
+</p>
+
+
+<a href="${item["Link Konten"] || "#"}"
+target="_blank">
+
+Lihat Konten
+
+</a>
+
+`;
+
+
+
+}
+
+
+
+
+if(type==="booster"){
+
+
+title =
+item["CABANG YANG DI BOOSTER"] || "-";
+
+
+body = `
+
+
+<p>
+Tanggal:
+${item["TANGGAL BOOSTER"] || "-"}
+</p>
+
+
+<p>
+Budget:
+${item["BUDGET BOOSTER"] || "-"}
+</p>
+
+
+<p>
+Host:
+${item["HOST LIVE"] || "-"}
+</p>
+
+
+`;
+
+
+
+}
+
+
+
+
+
+return `
+
+
+<div class="card ripple">
+
+
+<div class="card-header">
+
+
+<h3>
+${title}
+</h3>
+
+
+</div>
+
+
+<div class="card-body">
+
+${body}
+
+</div>
+
+
+</div>
+
+
+`;
+
+
+
+}
+
+
+
+
+
+
+
+/*
+====================================
+ SEARCH
+====================================
+*/
+
+
+function setupSearch(){
+
+
+const input =
+document.getElementById(
+"searchInput"
+);
+
+
+
+if(!input) return;
+
+
+
+input.addEventListener(
+"input",
+()=>{
+
+
+const keyword =
+input.value
+.toLowerCase();
+
+
+
+document
+.querySelectorAll(
+".card"
+)
+.forEach(card=>{
+
+
+card.style.display =
+card.innerText
+.toLowerCase()
+.includes(keyword)
+
+?
+
+"block"
+
+:
+
+"none";
+
+
+});
+
+
+});
+
+
+}
+
+
+
+
+
+
+/*
+====================================
+ LOADING + TOAST
+====================================
+*/
 
 
 function showLoading(){
 
- const loader =
- document.querySelector(
- ".loading"
- );
+const el =
+document.getElementById(
+"loading"
+);
 
- if(loader)
- loader.style.display="block";
+
+if(el)
+el.style.display="flex";
+
 
 }
 
@@ -449,20 +811,49 @@ function showLoading(){
 
 function hideLoading(){
 
- const loader =
- document.querySelector(
- ".loading"
- );
+const el =
+document.getElementById(
+"loading"
+);
 
- if(loader)
- loader.style.display="none";
+
+if(el)
+el.style.display="none";
+
 
 }
 
 
 
-function showError(message){
+function showToast(msg){
 
- console.log(message);
+
+const toast =
+document.getElementById(
+"toast"
+);
+
+
+if(!toast) return;
+
+
+toast.innerText =
+msg;
+
+
+toast.classList.add(
+"show"
+);
+
+
+
+setTimeout(()=>{
+
+toast.classList.remove(
+"show"
+);
+
+},3000);
+
 
 }
