@@ -378,3 +378,289 @@ function changePage(page){
     }
 
 }
+/* ==========================================================
+   ON PROCESS
+========================================================== */
+
+function renderOnProcess() {
+
+    currentPage = "onprocess";
+
+    pageTitle.textContent = "On Process";
+
+    dashboardGrid.innerHTML = "";
+
+    contentArea.innerHTML = "";
+
+    appData.onProcess.forEach(item => {
+
+        contentArea.innerHTML += createContentCard(item);
+
+    });
+
+}
+
+
+/* ==========================================================
+   STOCK
+========================================================== */
+
+function renderStock() {
+
+    currentPage = "stock";
+
+    pageTitle.textContent = "Stock";
+
+    dashboardGrid.innerHTML = "";
+
+    contentArea.innerHTML = "";
+
+    appData.stock.forEach(item => {
+
+        contentArea.innerHTML += createContentCard(item);
+
+    });
+
+}
+
+
+/* ==========================================================
+   UPLOAD
+========================================================== */
+
+function renderUpload() {
+
+    currentPage = "upload";
+
+    pageTitle.textContent = "Upload";
+
+    dashboardGrid.innerHTML = "";
+
+    contentArea.innerHTML = "";
+
+    appData.upload.forEach(item => {
+
+        contentArea.innerHTML += createUploadCard(item);
+
+    });
+
+}
+
+
+/* ==========================================================
+   BOOSTER
+========================================================== */
+
+function renderBooster() {
+
+    currentPage = "booster";
+
+    pageTitle.textContent = "Booster";
+
+    dashboardGrid.innerHTML = "";
+
+    contentArea.innerHTML = "";
+
+    appData.booster.forEach(item => {
+
+        contentArea.innerHTML += createUploadCard(item);
+
+    });
+
+}
+
+
+/* ==========================================================
+   CARD ON PROCESS & STOCK
+========================================================== */
+
+function createContentCard(item) {
+
+    return `
+
+    <div class="card fade-in">
+
+        <div class="content-card">
+
+            <h3>${item.Judul || "-"}</h3>
+
+            <p>${item.Editor || "-"}</p>
+
+            <div class="content-meta">
+
+                <span class="meta">
+                    ${item.Akun || "-"}
+                </span>
+
+                <span class="meta">
+                    ${item["Tanggal Edit"] || "-"}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+
+/* ==========================================================
+   CARD UPLOAD
+========================================================== */
+
+function createUploadCard(item) {
+
+    return `
+
+    <div class="card fade-in">
+
+        <div class="content-card">
+
+            <h3>${item.Judul || "-"}</h3>
+
+            <p>
+
+                👤 ${item.Editor || "-"}
+
+            </p>
+
+            <div class="content-meta">
+
+                <span class="badge primary">
+
+                    ${item.Akun || "-"}
+
+                </span>
+
+                <span class="badge success">
+
+                    👁 ${item["Views After"] || 0}
+
+                </span>
+
+                <span class="badge warning">
+
+                    ❤️ ${item["Likes After"] || 0}
+
+                </span>
+
+                <span class="badge danger">
+
+                    💬 ${item["Komentar After"] || 0}
+
+                </span>
+
+            </div>
+
+            ${
+                item["Link TikTok"]
+                ?
+
+                `
+
+                <a
+                    href="${item["Link TikTok"]}"
+                    target="_blank"
+                    class="meta">
+
+                    🎬 Buka TikTok
+
+                </a>
+
+                `
+
+                :
+
+                ""
+
+            }
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+
+/* ==========================================================
+   SEARCH
+========================================================== */
+
+function bindSearch() {
+
+    searchInput.addEventListener("input", searchData);
+
+}
+
+
+function searchData() {
+
+    const keyword =
+    searchInput.value.toLowerCase();
+
+    let source = [];
+
+    switch(currentPage){
+
+        case "home":
+
+            renderHome();
+
+            return;
+
+        case "onprocess":
+
+            source = appData.onProcess;
+
+        break;
+
+        case "stock":
+
+            source = appData.stock;
+
+        break;
+
+        case "upload":
+
+            source = appData.upload;
+
+        break;
+
+        case "booster":
+
+            source = appData.booster;
+
+        break;
+
+    }
+
+    const result = source.filter(item =>
+
+        JSON.stringify(item)
+        .toLowerCase()
+        .includes(keyword)
+
+    );
+
+    contentArea.innerHTML = "";
+
+    result.forEach(item=>{
+
+        if(currentPage==="upload" || currentPage==="booster"){
+
+            contentArea.innerHTML += createUploadCard(item);
+
+        }else{
+
+            contentArea.innerHTML += createContentCard(item);
+
+        }
+
+    });
+
+}
