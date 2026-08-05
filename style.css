@@ -495,4 +495,674 @@ body{
 
     padding-bottom:120px;
 
+}/* ==========================================================
+   RIPPLE EFFECT
+========================================================== */
+
+.ripple{
+    position:relative;
+    overflow:hidden;
+}
+
+.ripple span{
+    position:absolute;
+    border-radius:50%;
+    transform:scale(0);
+    animation:ripple .6s linear;
+    background:rgba(255,255,255,.45);
+    pointer-events:none;
+}
+
+@keyframes ripple{
+
+    to{
+
+        transform:scale(4);
+
+        opacity:0;
+
+    }
+
+}
+
+
+/* ==========================================================
+   FAB BUTTON
+========================================================== */
+
+.fab{
+
+    position:fixed;
+
+    right:30px;
+
+    bottom:95px;
+
+    width:64px;
+
+    height:64px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-light)
+    );
+
+    color:#fff;
+
+    font-size:22px;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    box-shadow:
+        0 18px 40px rgba(37,99,235,.35);
+
+    transition:var(--transition);
+
+    z-index:200;
+
+}
+
+.fab:hover{
+
+    transform:translateY(-6px) scale(1.05);
+
+}
+
+.fab:active{
+
+    transform:scale(.95);
+
+}
+
+
+/* ==========================================================
+   BOTTOM NAVIGATION
+========================================================== */
+
+.bottom-nav{
+
+    display:none;
+
+    position:fixed;
+
+    left:0;
+
+    right:0;
+
+    bottom:0;
+
+    height:74px;
+
+    background:rgba(255,255,255,.82);
+
+    backdrop-filter:blur(18px);
+
+    border-top:1px solid rgba(255,255,255,.5);
+
+    z-index:300;
+
+    justify-content:space-around;
+
+    align-items:center;
+
+}
+
+
+.bottom-item{
+
+    flex:1;
+
+    border:none;
+
+    background:none;
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:5px;
+
+    color:#64748b;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    font-size:12px;
+
+}
+
+.bottom-item i{
+
+    font-size:18px;
+
+}
+
+.bottom-item.active{
+
+    color:var(--primary);
+
+    font-weight:600;
+
+}
+
+
+/* ==========================================================
+   BADGE
+========================================================== */
+
+.badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:7px 14px;
+
+    border-radius:999px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.badge.success{
+
+    background:#dcfce7;
+
+    color:#15803d;
+
+}
+
+.badge.warning{
+
+    background:#fef3c7;
+
+    color:#b45309;
+
+}
+
+.badge.danger{
+
+    background:#fee2e2;
+
+    color:#b91c1c;
+
+}
+
+.badge.primary{
+
+    background:#dbeafe;
+
+    color:#2563eb;
+
+}
+
+
+/* ==========================================================
+   STAT CARD
+========================================================== */
+
+.stat-card{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+}
+
+.stat-left{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+}
+
+.stat-value{
+
+    font-size:34px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+.stat-title{
+
+    font-size:14px;
+
+    color:var(--text-light);
+
+}
+
+.stat-icon{
+
+    width:62px;
+
+    height:62px;
+
+    border-radius:18px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#eff6ff;
+
+    color:var(--primary);
+
+    font-size:24px;
+
+}
+
+
+/* ==========================================================
+   CONTENT CARD
+========================================================== */
+
+.content-card{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+}
+
+.content-card h3{
+
+    font-size:18px;
+
+    color:var(--text);
+
+}
+
+.content-card p{
+
+    font-size:14px;
+
+    color:var(--text-light);
+
+    line-height:1.6;
+
+}
+
+.content-meta{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+}
+
+.meta{
+
+    background:#f8fafc;
+
+    padding:8px 14px;
+
+    border-radius:12px;
+
+    font-size:13px;
+
+    color:#475569;
+
+}
+
+
+/* ==========================================================
+   SKELETON
+========================================================== */
+
+.skeleton{
+
+    position:relative;
+
+    overflow:hidden;
+
+    background:#e5e7eb;
+
+    border-radius:12px;
+
+}
+
+.skeleton::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    transform:translateX(-100%);
+
+    background:linear-gradient(
+
+        90deg,
+
+        transparent,
+
+        rgba(255,255,255,.7),
+
+        transparent
+
+    );
+
+    animation:skeleton 1.2s infinite;
+
+}
+
+@keyframes skeleton{
+
+    100%{
+
+        transform:translateX(100%);
+
+    }
+
+}
+
+
+/* ==========================================================
+   LOADING
+========================================================== */
+
+.loading-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(255,255,255,.55);
+
+    backdrop-filter:blur(10px);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    z-index:9999;
+
+    opacity:0;
+
+    visibility:hidden;
+
+    transition:.25s;
+
+}
+
+.loading-overlay.show{
+
+    opacity:1;
+
+    visibility:visible;
+
+}
+
+
+.loader{
+
+    width:58px;
+
+    height:58px;
+
+    border-radius:50%;
+
+    border:5px solid #dbeafe;
+
+    border-top-color:var(--primary);
+
+    animation:spin .8s linear infinite;
+
+}
+
+@keyframes spin{
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+
+/* ==========================================================
+   TOAST
+========================================================== */
+
+.toast{
+
+    position:fixed;
+
+    top:25px;
+
+    right:25px;
+
+    background:#0f172a;
+
+    color:#fff;
+
+    padding:16px 22px;
+
+    border-radius:14px;
+
+    box-shadow:0 20px 45px rgba(0,0,0,.18);
+
+    transform:translateY(-25px);
+
+    opacity:0;
+
+    transition:.3s;
+
+    z-index:99999;
+
+}
+
+.toast.show{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+}
+
+
+/* ==========================================================
+   SCROLLBAR
+========================================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#edf2f7;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#cbd5e1;
+
+    border-radius:999px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#94a3b8;
+
+}
+
+
+/* ==========================================================
+   FADE ANIMATION
+========================================================== */
+
+.fade-in{
+
+    animation:fadeIn .45s ease;
+
+}
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(15px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width:992px){
+
+    .sidebar{
+
+        display:none;
+
+    }
+
+    .main{
+
+        margin-left:0;
+
+        width:100%;
+
+        padding:22px;
+
+    }
+
+    .dashboard-grid{
+
+        grid-template-columns:1fr 1fr;
+
+    }
+
+}
+
+
+@media (max-width:768px){
+
+    .topbar{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+    }
+
+    .search-box{
+
+        width:100%;
+
+    }
+
+    .dashboard-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .content-area{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .bottom-nav{
+
+        display:flex;
+
+    }
+
+    .fab{
+
+        bottom:95px;
+
+        right:20px;
+
+        width:58px;
+
+        height:58px;
+
+    }
+
+}
+
+
+@media (max-width:480px){
+
+    .page-title h1{
+
+        font-size:24px;
+
+    }
+
+    .card{
+
+        padding:18px;
+
+    }
+
+    .stat-value{
+
+        font-size:28px;
+
+    }
+
 }
