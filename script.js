@@ -664,3 +664,268 @@ function searchData() {
     });
 
 }
+/* ==========================================================
+   COUNTER ANIMATION
+========================================================== */
+
+function animateCounter() {
+
+    const counters =
+    document.querySelectorAll(".counter");
+
+    counters.forEach(counter => {
+
+        const target =
+        Number(counter.innerText) || 0;
+
+        let current = 0;
+
+        const increment =
+        Math.max(1, Math.ceil(target / 40));
+
+        const timer = setInterval(() => {
+
+            current += increment;
+
+            if (current >= target) {
+
+                current = target;
+
+                clearInterval(timer);
+
+            }
+
+            counter.innerText =
+            current.toLocaleString("id-ID");
+
+        }, 20);
+
+    });
+
+}
+
+
+/* ==========================================================
+   LOADING
+========================================================== */
+
+function showLoading() {
+
+    loading.classList.add("show");
+
+}
+
+function hideLoading() {
+
+    loading.classList.remove("show");
+
+}
+
+
+/* ==========================================================
+   TOAST
+========================================================== */
+
+function showToast(message = "") {
+
+    toast.innerText = message;
+
+    toast.classList.add("show");
+
+    clearTimeout(window.toastTimer);
+
+    window.toastTimer = setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 3000);
+
+}
+
+
+/* ==========================================================
+   RIPPLE EFFECT
+========================================================== */
+
+function rippleEffect() {
+
+    document.addEventListener("click", e => {
+
+        const button =
+        e.target.closest(".ripple");
+
+        if (!button) return;
+
+        const circle =
+        document.createElement("span");
+
+        const size =
+        Math.max(button.clientWidth, button.clientHeight);
+
+        const rect =
+        button.getBoundingClientRect();
+
+        circle.style.width = size + "px";
+        circle.style.height = size + "px";
+
+        circle.style.left =
+            e.clientX - rect.left - size / 2 + "px";
+
+        circle.style.top =
+            e.clientY - rect.top - size / 2 + "px";
+
+        button.appendChild(circle);
+
+        setTimeout(() => {
+
+            circle.remove();
+
+        }, 600);
+
+    });
+
+}
+
+
+/* ==========================================================
+   FAB
+========================================================== */
+
+const fab =
+document.getElementById("fab");
+
+if (fab) {
+
+    fab.addEventListener("click", () => {
+
+        showToast("Feature coming soon");
+
+    });
+
+}
+
+
+/* ==========================================================
+   FORMAT NUMBER
+========================================================== */
+
+function formatNumber(value) {
+
+    if (!value) return "0";
+
+    return Number(value)
+    .toLocaleString("id-ID");
+
+}
+
+
+/* ==========================================================
+   FORMAT DATE
+========================================================== */
+
+function formatDate(date) {
+
+    if (!date) return "-";
+
+    const d = new Date(date);
+
+    if (isNaN(d)) return date;
+
+    return d.toLocaleDateString("id-ID", {
+
+        day: "2-digit",
+
+        month: "short",
+
+        year: "numeric"
+
+    });
+
+}
+
+
+/* ==========================================================
+   EMPTY STATE
+========================================================== */
+
+function showEmptyState(message = "Data tidak ditemukan") {
+
+    contentArea.innerHTML = `
+
+        <div class="card fade-in">
+
+            <div class="content-card">
+
+                <h3>📭 Tidak Ada Data</h3>
+
+                <p>${message}</p>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* ==========================================================
+   REFRESH
+========================================================== */
+
+async function refreshData() {
+
+    await loadData();
+
+    showToast("Data berhasil diperbarui");
+
+}
+
+
+/* ==========================================================
+   AUTO REFRESH
+========================================================== */
+
+// Refresh setiap 5 menit
+
+setInterval(() => {
+
+    refreshData();
+
+}, 300000);
+
+
+/* ==========================================================
+   SHORTCUT
+========================================================== */
+
+document.addEventListener("keydown", e => {
+
+    // Ctrl + R
+
+    if (e.ctrlKey && e.key === "r") {
+
+        e.preventDefault();
+
+        refreshData();
+
+    }
+
+});
+
+
+/* ==========================================================
+   DEBUG
+========================================================== */
+
+console.log(
+    "%cCBM Social Report",
+    "color:#2563eb;font-size:18px;font-weight:bold;"
+);
+
+console.log("Application Ready");
+
+
+/* ==========================================================
+   END
+========================================================== */
