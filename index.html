@@ -1,132 +1,262 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBM Social Report</title>
 
-<title>CBM Content Manager</title>
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="style.css">
+    <!-- Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
 
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+<div class="app">
 
-<header>
+    <!-- ===================== -->
+    <!-- Sidebar -->
+    <!-- ===================== -->
 
-<h1>CBM Content Manager</h1>
-<p>Monitoring konten sosial media</p>
+    <aside class="sidebar">
 
-</header>
+        <div class="logo">
 
+            <div class="logo-icon">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
 
+            <div class="logo-text">
+                <h2>CBM</h2>
+                <span>Social Report</span>
+            </div>
 
-<main id="app">
+        </div>
 
+        <nav class="menu">
 
-<section class="dashboard">
+            <button class="menu-item active" data-page="home">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </button>
 
+            <button class="menu-item" data-page="onprocess">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>On Process</span>
+            </button>
 
-<div class="box yellow">
+            <button class="menu-item" data-page="stock">
+                <i class="fa-solid fa-box"></i>
+                <span>Stock</span>
+            </button>
 
-<h2 id="processCount">0</h2>
-<p>📝 On Process</p>
+            <button class="menu-item" data-page="upload">
+                <i class="fa-solid fa-film"></i>
+                <span>Upload</span>
+            </button>
+
+            <button class="menu-item" data-page="booster">
+                <i class="fa-solid fa-rocket"></i>
+                <span>Booster</span>
+            </button>
+
+        </nav>
+
+    </aside>
+
+    <!-- ===================== -->
+    <!-- Main -->
+    <!-- ===================== -->
+
+    <main class="main">
+
+        <!-- Topbar -->
+
+        <header class="topbar">
+
+            <div class="page-title">
+
+                <h1 id="pageTitle">
+                    Dashboard
+                </h1>
+
+                <p>
+                    Content Performance Monitoring
+                </p>
+
+            </div>
+
+            <div class="top-actions">
+
+                <div class="search-box">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        id="searchInput"
+                        type="text"
+                        placeholder="Search..."
+                    >
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- Dashboard Cards -->
+
+        <section
+            class="dashboard-grid"
+            id="dashboardGrid">
+
+        </section>
+
+        <!-- Dynamic Content -->
+
+        <section
+            id="contentArea"
+            class="content-area">
+
+        </section>
+
+    </main>
 
 </div>
 
 
+<!-- ===================== -->
+<!-- Floating Button -->
+<!-- ===================== -->
 
-<div class="box blue">
+<button
+    class="fab"
+    id="fab">
 
-<h2 id="stockCount">0</h2>
-<p>📦 Stock</p>
+    <i class="fa-solid fa-plus"></i>
 
-</div>
-
-
-
-<div class="box green">
-
-<h2 id="uploadCount">0</h2>
-<p>🎬 Terupload</p>
-
-</div>
-
-
-
-<div class="box purple">
-
-<h2 id="boosterCount">0</h2>
-<p>🚀 Booster</p>
-
-</div>
-
-
-</section>
-
-
-
-<h2 class="title">
-Aktivitas Terbaru
-</h2>
-
-
-<div id="activity">
-
-<p>
-Memuat data...
-</p>
-
-</div>
-
-
-
-</main>
-
-
-
-
-<nav>
-
-
-<button onclick="goPage('home')">
-🏠
-<span>Home</span>
 </button>
 
 
-<button onclick="goPage('process')">
-📝
-<span>Process</span>
-</button>
+<!-- ===================== -->
+<!-- Bottom Navigation -->
+<!-- ===================== -->
 
+<nav class="bottom-nav">
 
-<button onclick="goPage('stock')">
-📦
-<span>Stock</span>
-</button>
+    <button
+        class="bottom-item active"
+        data-page="home">
 
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
 
-<button onclick="goPage('upload')">
-🎬
-<span>Upload</span>
-</button>
+    </button>
 
+    <button
+        class="bottom-item"
+        data-page="onprocess">
 
-<button onclick="goPage('booster')">
-🚀
-<span>Booster</span>
-</button>
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Process</span>
 
+    </button>
+
+    <button
+        class="bottom-item"
+        data-page="stock">
+
+        <i class="fa-solid fa-box"></i>
+        <span>Stock</span>
+
+    </button>
+
+    <button
+        class="bottom-item"
+        data-page="upload">
+
+        <i class="fa-solid fa-film"></i>
+        <span>Upload</span>
+
+    </button>
+
+    <button
+        class="bottom-item"
+        data-page="booster">
+
+        <i class="fa-solid fa-rocket"></i>
+        <span>Booster</span>
+
+    </button>
 
 </nav>
 
 
+<!-- ===================== -->
+<!-- Loading -->
+<!-- ===================== -->
+
+<div
+    class="loading-overlay"
+    id="loading">
+
+    <div class="loader"></div>
+
+</div>
+
+
+<!-- ===================== -->
+<!-- Toast -->
+<!-- ===================== -->
+
+<div
+    id="toast"
+    class="toast">
+
+</div>
+
+
+<!-- ===================== -->
+<!-- Template -->
+<!-- ===================== -->
+
+<template id="cardTemplate">
+
+    <div class="card ripple">
+
+        <div class="card-header">
+
+            <h3></h3>
+
+            <span></span>
+
+        </div>
+
+        <div class="card-body">
+
+        </div>
+
+    </div>
+
+</template>
+
+
+<!-- ===================== -->
+<!-- Script -->
+<!-- ===================== -->
 
 <script src="script.js"></script>
-
 
 </body>
 </html>
