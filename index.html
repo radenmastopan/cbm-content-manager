@@ -3,260 +3,43 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>CBM Social Report</title>
-
-    <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Icons -->
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    />
-
-    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <div class="app">
-
-    <!-- ===================== -->
-    <!-- Sidebar -->
-    <!-- ===================== -->
-
     <aside class="sidebar">
-
-        <div class="logo">
-
-            <div class="logo-icon">
-                <i class="fa-solid fa-chart-line"></i>
-            </div>
-
-            <div class="logo-text">
-                <h2>CBM</h2>
-                <span>Social Report</span>
-            </div>
-
-        </div>
-
+        <div class="logo"><div class="logo-icon"><i class="fa-solid fa-chart-line"></i></div><div class="logo-text"><h2>CBM</h2><span>Social Report</span></div></div>
         <nav class="menu">
-
-            <button class="menu-item active" data-page="home">
-                <i class="fa-solid fa-house"></i>
-                <span>Home</span>
-            </button>
-
-            <button class="menu-item" data-page="onprocess">
-                <i class="fa-solid fa-pen-to-square"></i>
-                <span>On Process</span>
-            </button>
-
-            <button class="menu-item" data-page="stock">
-                <i class="fa-solid fa-box"></i>
-                <span>Stock</span>
-            </button>
-
-            <button class="menu-item" data-page="upload">
-                <i class="fa-solid fa-film"></i>
-                <span>Upload</span>
-            </button>
-
-            <button class="menu-item" data-page="booster">
-                <i class="fa-solid fa-rocket"></i>
-                <span>Booster</span>
-            </button>
-
+            <button class="menu-item active" data-page="home"><i class="fa-solid fa-house"></i><span>Home</span></button>
+            <button class="menu-item" data-page="onprocess"><i class="fa-solid fa-pen-to-square"></i><span>On Process</span></button>
+            <button class="menu-item" data-page="stock"><i class="fa-solid fa-box"></i><span>Stock</span></button>
+            <button class="menu-item" data-page="upload"><i class="fa-solid fa-film"></i><span>Upload</span></button>
+            <button class="menu-item" data-page="booster"><i class="fa-solid fa-rocket"></i><span>Booster</span></button>
         </nav>
-
     </aside>
-
-    <!-- ===================== -->
-    <!-- Main -->
-    <!-- ===================== -->
-
     <main class="main">
-
-        <!-- Topbar -->
-
-        <header class="topbar">
-
-            <div class="page-title">
-
-                <h1 id="pageTitle">
-                    Dashboard
-                </h1>
-
-                <p>
-                    Content Performance Monitoring
-                </p>
-
-            </div>
-
-            <div class="top-actions">
-
-                <div class="search-box">
-
-                    <i class="fa-solid fa-magnifying-glass"></i>
-
-                    <input
-                        id="searchInput"
-                        type="text"
-                        placeholder="Search..."
-                    >
-
-                </div>
-
-            </div>
-
-        </header>
-
-        <!-- Dashboard Cards -->
-
-        <section
-            class="dashboard-grid"
-            id="dashboardGrid">
-
-        </section>
-
-        <!-- Dynamic Content -->
-
-        <section
-            id="contentArea"
-            class="content-area">
-
-        </section>
-
+        <header class="topbar"><div class="page-title"><h1 id="pageTitle">Dashboard</h1><p>Content Performance Monitoring</p></div><div class="top-actions"><div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" type="text" placeholder="Search..."></div></div></header>
+        <section class="dashboard-grid" id="dashboardGrid"></section>
+        <section id="contentArea" class="content-area"></section>
     </main>
-
 </div>
-
-
-<!-- ===================== -->
-<!-- Floating Button -->
-<!-- ===================== -->
-
-<button
-    class="fab"
-    id="fab">
-
-    <i class="fa-solid fa-plus"></i>
-
-</button>
-
-
-<!-- ===================== -->
-<!-- Bottom Navigation -->
-<!-- ===================== -->
-
+<button class="fab" id="fab"><i class="fa-solid fa-plus"></i></button>
 <nav class="bottom-nav">
-
-    <button
-        class="bottom-item active"
-        data-page="home">
-
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-
-    </button>
-
-    <button
-        class="bottom-item"
-        data-page="onprocess">
-
-        <i class="fa-solid fa-pen-to-square"></i>
-        <span>Process</span>
-
-    </button>
-
-    <button
-        class="bottom-item"
-        data-page="stock">
-
-        <i class="fa-solid fa-box"></i>
-        <span>Stock</span>
-
-    </button>
-
-    <button
-        class="bottom-item"
-        data-page="upload">
-
-        <i class="fa-solid fa-film"></i>
-        <span>Upload</span>
-
-    </button>
-
-    <button
-        class="bottom-item"
-        data-page="booster">
-
-        <i class="fa-solid fa-rocket"></i>
-        <span>Booster</span>
-
-    </button>
-
+    <button class="bottom-item active" data-page="home"><i class="fa-solid fa-house"></i><span>Home</span></button>
+    <button class="bottom-item" data-page="onprocess"><i class="fa-solid fa-pen-to-square"></i><span>Process</span></button>
+    <button class="bottom-item" data-page="stock"><i class="fa-solid fa-box"></i><span>Stock</span></button>
+    <button class="bottom-item" data-page="upload"><i class="fa-solid fa-film"></i><span>Upload</span></button>
+    <button class="bottom-item" data-page="booster"><i class="fa-solid fa-rocket"></i><span>Booster</span></button>
 </nav>
-
-
-<!-- ===================== -->
-<!-- Loading -->
-<!-- ===================== -->
-
-<div
-    class="loading-overlay"
-    id="loading">
-
-    <div class="loader"></div>
-
-</div>
-
-
-<!-- ===================== -->
-<!-- Toast -->
-<!-- ===================== -->
-
-<div
-    id="toast"
-    class="toast">
-
-</div>
-
-
-<!-- ===================== -->
-<!-- Template -->
-<!-- ===================== -->
-
-<template id="cardTemplate">
-
-    <div class="card ripple">
-
-        <div class="card-header">
-
-            <h3></h3>
-
-            <span></span>
-
-        </div>
-
-        <div class="card-body">
-
-        </div>
-
-    </div>
-
-</template>
-
-
-<!-- ===================== -->
-<!-- Script -->
-<!-- ===================== -->
-
+<div class="loading-overlay" id="loading"><div class="loader"></div></div>
+<div id="toast" class="toast"></div>
+<template id="cardTemplate"><div class="card ripple"><div class="card-header"><h3></h3><span></span></div><div class="card-body"></div></div></template>
 <script src="script.js"></script>
-
+<script src="preview-fix.js"></script>
 </body>
 </html>
