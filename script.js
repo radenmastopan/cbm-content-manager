@@ -13,6 +13,7 @@ async function init() {
     bindNavigation();
     bindSearch();
     bindFab();
+    injectRuntimeStyles();
     await loadData();
 }
 
@@ -25,6 +26,7 @@ async function loadData() {
             redirect: "follow"
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
         const raw = await response.json();
         const data = raw && raw.data && typeof raw.data === "object" ? raw.data : raw;
 
@@ -34,13 +36,6 @@ async function loadData() {
             upload: pickArray(data, ["upload"]),
             boosterLive: pickArray(data, ["boosterLive", "boosterlive", "booster"])
         };
-
-        console.log("CBM Social Report API loaded", {
-            onProcess: appData.onProcess.length,
-            stock: appData.stock.length,
-            upload: appData.upload.length,
-            boosterLive: appData.boosterLive.length
-        });
 
         renderPage(currentPage);
     } catch (error) {
@@ -145,6 +140,7 @@ function renderHome() {
             currentPage = button.dataset.page;
             setActiveNavigation();
             renderPage(currentPage);
+            window.scrollTo({ top: 0, behavior: "smooth" });
         });
     });
 
@@ -257,12 +253,12 @@ function cardTemplate(title, body) {
 }
 
 function field(label, val) {
-    return `<p><b>${escapeHtml(label)}</b><br>${escapeHtml(val || "-")}</p>`;
+    return `<p><b>${escapeHtml(label)}</b><br>${escapeHtml(formatValue(val) || "-")}</p>`;
 }
 
 function metricHtml(label, before, after) {
     if (!before && !after) return "";
-    return `<div class="metric-row"><span class="metric-label">${escapeHtml(label)}</span><span class="metric-values">${escapeHtml(before || "-")} → ${escapeHtml(after || "-")}</span></div>`;
+    return `<div class="metric-row"><span class="metric-label">${escapeHtml(label)}</span><span class="metric-values">${escapeHtml(formatValue(before) || "-")} → ${escapeHtml(formatValue(after) || "-")}</span></div>`;
 }
 
 function reviewHtml(url) {
@@ -275,11 +271,154 @@ function linkHtml(url) {
     return `<p><a href="${escapeAttribute(url)}" target="_blank" rel="noopener noreferrer">Buka Konten <i class="fa-solid fa-arrow-up-right-from-square"></i></a></p>`;
 }
 
+function bindPreviewButtons(root) {
+    root.querySelectorAll(".preview-button").forEach(button => {
+        button.addEventListener("click", () => openTikTokPreview(button.dataset.previewUrl || ""));
+    });
+}
+
+async function openTikTokPreview(url) {
+    if (!url) return;
+
+    const modal = ensurePreviewModal();
+    const body = modal.querySelector(".tiktok-preview-body");
+    const openButton = modal.querySelector(".tiktok-open-button");
+
+    openButton.href = url;
+    modal.classList.add("show");
+    document.body.classList.add("modal-open");
+    body.innerHTML = `
+        <div class="preview-loading">
+            <div class="loader"></div>
+            <p>Memuat video TikTok...</p>
+        </div>`;
+
+    try {
+        // TikTok's oEmbed endpoint accepts a TikTok video URL and returns
+        // the canonical post information, including the post ID.
+        const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`, {
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) throw new Error(`oEmbed HTTP ${response.status}`);
+        const data = await response.json();
+        const html = String(data.html || "");
+        const idMatch = html.match(/data-video-id=["'](\d+)["']/i);
+        const id = idMatch ? idMatch[1] : "";
+
+        if (!id) throw new Error("TikTok post ID tidak ditemukan");
+
+        const playerUrl = `https://www.tiktok.com/player/v1/${id}?controls=1&description=1&music_info=1&loop=0`;
+
+        body.innerHTML = `
+            <iframe
+                class="tiktok-player"
+                src="${escapeAttribute(playerUrl)}"
+                title="TikTok video preview"
+                allow="fullscreen; autoplay"
+                allowfullscreen
+                loading="eager">
+            </iframe>`;
+    } catch (error) {
+        console.warn("TikTok embedded preview gagal:", error);
+        body.innerHTML = `
+            <div class="preview-fallback">
+                <i class="fa-brands fa-tiktok"></i>
+                <h3>Preview TikTok tidak dapat dimuat</h3>
+                <p>Browser atau TikTok menolak embed untuk link ini. Kamu tetap bisa membuka videonya langsung.</p>
+                <a class="tiktok-fallback-link" href="${escapeAttribute(url)}" target="_blank" rel="noopener noreferrer">Buka Video di TikTok <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>`;
+    }
+}
+
+function ensurePreviewModal() {
+    let modal = $("#tiktokPreviewModal");
+    if (modal) return modal;
+
+    modal = document.createElement("div");
+    modal.id = "tiktokPreviewModal";
+    modal.className = "tiktok-preview-modal";
+    modal.innerHTML = `
+        <div class="tiktok-preview-dialog" role="dialog" aria-modal="true" aria-label="Preview TikTok">
+            <button type="button" class="tiktok-preview-close" aria-label="Tutup">×</button>
+            <div class="tiktok-preview-body"></div>
+            <a class="tiktok-open-button" href="#" target="_blank" rel="noopener noreferrer">Buka di TikTok</a>
+        </div>`;
+
+    document.body.appendChild(modal);
+
+    modal.addEventListener("click", event => {
+        if (event.target === modal || event.target.closest(".tiktok-preview-close")) closePreviewModal();
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closePreviewModal();
+    });
+
+    return modal;
+}
+
+function closePreviewModal() {
+    const modal = $("#tiktokPreviewModal");
+    if (!modal) return;
+    modal.classList.remove("show");
+    document.body.classList.remove("modal-open");
+    const body = modal.querySelector(".tiktok-preview-body");
+    if (body) body.innerHTML = "";
+}
+
+function filterData(data) {
+    if (!searchTerm) return data || [];
+    return (data || []).filter(item => {
+        try {
+            return Object.values(item || {}).some(value => String(value ?? "").toLowerCase().includes(searchTerm));
+        } catch {
+            return false;
+        }
+    });
+}
+
+function sectionName(type) {
+    return {
+        onprocess: "On Process",
+        stock: "Stock Konten",
+        upload: "Konten Terupload",
+        booster: "Booster Live"
+    }[type] || "Data";
+}
+
+function emptyState(text) {
+    return `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><h3>${escapeHtml(text)}</h3></div>`;
+}
+
+function renderError(message) {
+    const content = $("#contentArea");
+    if (content) content.innerHTML = emptyState(message);
+}
+
+function formatValue(value) {
+    if (value === null || value === undefined) return "";
+    return String(value).trim();
+}
+
+function cleanValue(value) {
+    return formatValue(value);
+}
+
+function normalizeKey(key) {
+    return String(key ?? "")
+        .toLowerCase()
+        .replace(/[\u00a0\r\n]+/g, " ")
+        .replace(/[^a-z0-9]+/g, "")
+        .trim();
+}
+
 function value(item, type, sheet) {
     const aliases = {
         judul: ["judulkonten", "judul", "namakonten", "title"],
         editor: ["editor"],
-        akun: ["akuntiktok", "akun"],
+        akun: ["akuntiktok", "akuntiktok", "akun"],
         bahan: ["tanggalbahanmentahditerima", "bahanmentahditerima", "tanggalbahan"],
         mulaiEdit: ["tanggalmulaiedit", "mulaiedit"],
         jadiKonten: ["tanggaljadikonten", "jadikonten"],
@@ -294,9 +433,9 @@ function value(item, type, sheet) {
         jenisBooster: ["jenisbooster", "booster"],
         nominalBooster: ["nominalbooster"],
         asalDana: ["asaldanabooster", "asaldana"],
-        viewsBefore: ["viewsbefore", "viewbefore"],
-        likesBefore: ["likesbefore", "likebefore"],
-        viewsAfter: ["viewsafter", "viewafter"],
+        viewsBefore: ["jumlahviewlikesebelumbooster", "viewsbefore", "viewbefore", "view"],
+        likesBefore: ["likesbefore", "likebefore", "like"],
+        viewsAfter: ["jumlahviewlikesetelahbooster", "viewsafter", "viewafter"],
         likesAfter: ["likesafter", "likeafter"],
         cabang: ["cabangyangdibooster", "cabang"],
         tanggal: ["tanggalbooster", "tanggal"],
@@ -338,7 +477,12 @@ function value(item, type, sheet) {
         viewsAfter: /view.*setelah/i,
         likesAfter: /like.*setelah/i,
         keterangan: /keter|catatan/i,
-        status: /status/i
+        status: /status/i,
+        cabang: /cabang.*booster|cabang/i,
+        tanggal: /tanggal.*booster/i,
+        asalBiaya: /asal.*biaya/i,
+        budget: /budget.*booster|budget/i,
+        host: /host.*live|host/i
     };
 
     if (semantic[type]) {
@@ -360,133 +504,22 @@ function indexFor(sheet, type) {
     return maps[sheet]?.[type] ?? -1;
 }
 
-function normalizeKey(value) {
-    return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
-function cleanValue(value) {
-    return value === null || value === undefined ? "" : String(value).trim();
-}
-
-function filterData(data) {
-    if (!searchTerm) return data;
-    return data.filter(item => JSON.stringify(item).toLowerCase().includes(searchTerm));
-}
-
-function sectionName(type) {
-    return {
-        onprocess: "On Process",
-        stock: "Stock Konten",
-        upload: "Konten Terupload",
-        booster: "Booster Live"
-    }[type] || "Konten";
-}
-
-function emptyState(message) {
-    return `<div class="card empty-state"><div class="card-body"><p>${escapeHtml(message)}</p></div></div>`;
-}
-
-function bindPreviewButtons(root) {
-    root.querySelectorAll("[data-preview-url]").forEach(button => {
-        button.addEventListener("click", () => openPreview(button.dataset.previewUrl));
-    });
-}
-
-function openPreview(url) {
-    if (!url) return;
-    const existing = document.getElementById("previewModal");
-    if (existing) existing.remove();
-
-    const modal = document.createElement("div");
-    modal.id = "previewModal";
-    modal.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:20px";
-    modal.innerHTML = `<div style="position:relative;width:min(420px,100%);height:min(760px,90vh);background:#111;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)"><button id="closePreview" type="button" style="position:absolute;right:10px;top:10px;z-index:2;border:0;border-radius:50%;width:36px;height:36px;cursor:pointer;background:rgba(255,255,255,.9);font-size:20px">×</button><iframe src="${escapeAttribute(tiktokEmbedUrl(url))}" title="TikTok preview" style="width:100%;height:100%;border:0" allow="autoplay; encrypted-media" allowfullscreen></iframe><div style="position:absolute;left:12px;right:12px;bottom:12px;text-align:center"><a href="${escapeAttribute(url)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#fff;color:#111;padding:10px 16px;border-radius:999px;text-decoration:none;font-weight:600">Buka di TikTok</a></div></div>`;
-    document.body.appendChild(modal);
-    $("#closePreview").addEventListener("click", () => modal.remove());
-    modal.addEventListener("click", event => { if (event.target === modal) modal.remove(); });
-}
-
-function tiktokEmbedUrl(url) {
-    const match = String(url).match(/\/video\/(\d+)/i);
-    if (match) return `https://www.tiktok.com/player/v1/${match[1]}?description=1&music_info=1&rel=0`;
-    return url;
-}
-
-function openAddModal() {
-    const existing = document.getElementById("addModal");
-    if (existing) existing.remove();
-
-    const type = currentPage === "home" ? "upload" : currentPage;
-    const labels = {
-        onprocess: "Tambah On Process",
-        stock: "Tambah Stock",
-        upload: "Tambah Konten Terupload",
-        booster: "Tambah Booster Live"
-    };
-
-    const modal = document.createElement("div");
-    modal.id = "addModal";
-    modal.style.cssText = "position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px";
-    modal.innerHTML = `<form id="addForm" style="width:min(560px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><h2 style="margin:0">${labels[type] || "Tambah Data"}</h2><button id="closeAdd" type="button" style="border:0;background:none;font-size:24px;cursor:pointer">×</button></div><div id="addFields">${addFields(type)}</div><button type="submit" style="width:100%;margin-top:18px;border:0;border-radius:12px;padding:13px;cursor:pointer;font-weight:700">Simpan</button></form>`;
-    document.body.appendChild(modal);
-
-    $("#closeAdd").addEventListener("click", () => modal.remove());
-    modal.addEventListener("click", event => { if (event.target === modal) modal.remove(); });
-    $("#addForm").addEventListener("submit", async event => {
-        event.preventDefault();
-        await submitAdd(type, new FormData(event.currentTarget), modal);
-    });
-}
-
-function addFields(type) {
-    const common = {
-        onprocess: [
-            ["judul", "Judul Konten", "text"], ["bahan", "Tanggal Bahan Mentah Diterima", "date"], ["mulaiEdit", "Tanggal Mulai Edit", "date"], ["jadiKonten", "Tanggal Jadi Konten", "date"], ["editor", "Editor", "text"], ["uploadReview", "Tanggal Upload ke Grup Review", "date"], ["acc", "Tanggal ACC", "date"], ["status", "Status", "text"], ["keterangan", "Keterangan", "text"]
-        ],
-        stock: [
-            ["judul", "Judul Konten", "text"], ["selesaiEdit", "Tanggal Selesai Edit", "date"], ["uploadReview", "Tanggal Upload ke Grup Review", "date"], ["acc", "Tanggal ACC Konten", "date"], ["akun", "Akun TikTok", "text"], ["editor", "Editor", "text"], ["jadwal", "Penjadwalan Konten Upload", "date"], ["keterangan", "Keterangan", "text"], ["link", "Link Konten", "url"]
-        ],
-        upload: [
-            ["judul", "Judul Konten", "text"], ["selesaiEdit", "Tanggal Selesai Edit", "date"], ["uploadReview", "Tanggal Upload ke Grup Review", "date"], ["acc", "Tanggal ACC Konten", "date"], ["akun", "Akun TikTok", "text"], ["uploadTikTok", "Tanggal Upload TikTok", "date"], ["editor", "Editor", "text"], ["jenisBooster", "Jenis Booster", "text"], ["nominalBooster", "Nominal Booster", "text"], ["asalDana", "Asal Dana Booster", "text"], ["viewsBefore", "Views Sebelum Booster", "text"], ["likesBefore", "Likes Sebelum Booster", "text"], ["viewsAfter", "Views Setelah Booster", "text"], ["likesAfter", "Likes Setelah Booster", "text"], ["link", "Link Konten", "url"]
-        ],
-        booster: [
-            ["cabang", "Cabang yang di Booster", "text"], ["tanggal", "Tanggal Booster", "date"], ["asalBiaya", "Asal Biaya Booster", "text"], ["budget", "Budget Booster", "text"], ["host", "Host Live", "text"]
-        ]
-    };
-
-    return common[type].map(([name, label, inputType]) => `<label style="display:block;margin:12px 0;font-weight:600">${escapeHtml(label)}<input name="${name}" type="${inputType}" style="display:block;width:100%;box-sizing:border-box;margin-top:6px;padding:11px;border:1px solid #ddd;border-radius:10px"></label>`).join("");
-}
-
-async function submitAdd(type, formData, modal) {
-    const data = Object.fromEntries(formData.entries());
-    showLoading(true);
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ action: "add", sheet: type === "onprocess" ? "onProcess" : type, data })
-        });
-        const result = await response.json();
-        if (!result.success) throw new Error(result.message || "Gagal menyimpan data");
-        modal.remove();
-        showToast("Data berhasil ditambahkan");
-        await loadData();
-    } catch (error) {
-        console.error(error);
-        showToast(error.message || "Gagal menyimpan data");
-    } finally {
-        showLoading(false);
-    }
-}
-
-function renderError(message) {
-    const content = $("#contentArea");
-    if (content) content.innerHTML = emptyState(message);
+function escapeAttribute(value) {
+    return escapeHtml(value);
 }
 
 function showLoading(show) {
-    const loading = $("#loading");
-    if (loading) loading.classList.toggle("show", !!show);
+    const el = $("#loading");
+    if (el) el.classList.toggle("show", !!show);
 }
 
 function showToast(message) {
@@ -495,13 +528,51 @@ function showToast(message) {
     toast.textContent = message;
     toast.classList.add("show");
     clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => toast.classList.remove("show"), 2800);
+    showToast.timer = setTimeout(() => toast.classList.remove("show"), 3000);
 }
 
-function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>'"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char]));
+function openAddModal() {
+    let modal = $("#addModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "addModal";
+        modal.className = "simple-modal";
+        modal.innerHTML = `
+            <div class="simple-modal-box">
+                <button class="simple-modal-close" type="button">×</button>
+                <h2>Tambah Konten</h2>
+                <p class="modal-note">Form input siap ditambahkan ke tahap berikutnya.</p>
+                <button class="modal-ok" type="button">Tutup</button>
+            </div>`;
+        document.body.appendChild(modal);
+        modal.querySelector(".simple-modal-close").onclick = () => modal.remove();
+        modal.querySelector(".modal-ok").onclick = () => modal.remove();
+        modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); });
+    }
 }
 
-function escapeAttribute(value) {
-    return escapeHtml(value).replace(/`/g, "&#96;");
+function injectRuntimeStyles() {
+    if ($("#cbm-runtime-styles")) return;
+    const style = document.createElement("style");
+    style.id = "cbm-runtime-styles";
+    style.textContent = `
+        body.modal-open{overflow:hidden}
+        .tiktok-preview-modal{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(10,18,35,.72);backdrop-filter:blur(8px)}
+        .tiktok-preview-modal.show{display:flex}
+        .tiktok-preview-dialog{position:relative;width:min(430px,92vw);height:min(780px,90vh);background:#fff;border-radius:24px;box-shadow:0 25px 80px rgba(0,0,0,.35);overflow:hidden;display:flex;flex-direction:column}
+        .tiktok-preview-body{flex:1;min-height:0;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .tiktok-player{width:100%;height:100%;border:0;background:#000}
+        .tiktok-preview-close{position:absolute;right:12px;top:12px;z-index:3;width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.94);font-size:25px;line-height:38px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.16)}
+        .tiktok-open-button{display:block;text-align:center;text-decoration:none;background:#fff;color:#111;font-weight:700;padding:15px 18px;border-top:1px solid #eee}
+        .preview-loading,.preview-fallback{color:#fff;text-align:center;padding:30px;max-width:330px}
+        .preview-fallback i{font-size:42px;margin-bottom:12px}.preview-fallback h3{margin:8px 0;font-size:20px}.preview-fallback p{opacity:.8;line-height:1.5}
+        .tiktok-fallback-link{display:inline-block;margin-top:12px;padding:12px 16px;border-radius:12px;background:#fff;color:#111;text-decoration:none;font-weight:700}
+        .preview-loading .loader{width:32px;height:32px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:cbmspin .8s linear infinite;margin:0 auto 12px}
+        @keyframes cbmspin{to{transform:rotate(360deg)}}
+        .simple-modal{position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(10,18,35,.65);padding:20px}
+        .simple-modal-box{position:relative;background:#fff;border-radius:20px;padding:28px;width:min(420px,92vw);box-shadow:0 25px 70px rgba(0,0,0,.25)}
+        .simple-modal-close{position:absolute;right:12px;top:12px;border:0;background:#f2f4f8;border-radius:50%;width:34px;height:34px;font-size:22px;cursor:pointer}.simple-modal h2{margin-top:0}.modal-note{color:#64748b}.modal-ok{border:0;border-radius:12px;padding:11px 18px;font-weight:700;cursor:pointer}
+        @media(max-width:600px){.tiktok-preview-modal{padding:0}.tiktok-preview-dialog{width:100vw;height:100vh;border-radius:0}.tiktok-preview-body{min-height:0}}
+    `;
+    document.head.appendChild(style);
 }
