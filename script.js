@@ -48,7 +48,9 @@ async function loadData() {
 }
 
 function pickArray(data, keys) {
-    for (const key of keys) if (Array.isArray(data?.[key])) return data[key];
+    for (const key of keys) {
+        if (Array.isArray(data?.[key])) return data[key];
+    }
     return [];
 }
 
@@ -153,7 +155,6 @@ function renderHome() {
             ${latest.length ? latest.map(createUploadCard).join("") : emptyState("Belum ada data upload.")}
         </div>
     `;
-    bindPreviewButtons(content);
 }
 
 function renderSection(data, type) {
@@ -170,7 +171,6 @@ function renderSection(data, type) {
                 : emptyState(type === "onprocess" ? "Data On Process belum diterima dari API Google Sheets." : "Tidak ada data yang ditemukan.")}
         </div>
     `;
-    bindPreviewButtons(content);
 }
 
 function createCard(item, type) {
@@ -210,12 +210,9 @@ function createStockCard(item) {
 }
 
 function createUploadCard(item) {
-    const vb = value(item, "viewsBefore", "upload");
-    const va = value(item, "viewsAfter", "upload");
-    const lb = value(item, "likesBefore", "upload");
-    const la = value(item, "likesAfter", "upload");
-    const booster = value(item, "jenisBooster", "upload") || "Tanpa Booster";
+    const booster = value(item, "jenisBooster", "upload");
     const url = value(item, "link", "upload");
+    const isBooster = booster && normalizeKey(booster) !== "tanpabooster" && booster !== "-";
 
     return cardTemplate(
         value(item, "judul", "upload") || "Tanpa Judul",
@@ -223,13 +220,33 @@ function createUploadCard(item) {
          ${field("Editor", value(item, "editor", "upload"))}
          ${field("Tanggal Upload TikTok", value(item, "uploadTikTok", "upload"))}
          ${field("Tanggal ACC", value(item, "acc", "upload"))}
-         ${field("Booster", booster)}
+         ${field("Booster", booster || "Tanpa Booster")}
          ${field("Nominal Booster", value(item, "nominalBooster", "upload"))}
          ${field("Asal Dana", value(item, "asalDana", "upload"))}
-         ${metricHtml("Views", vb, va)}
-         ${metricHtml("Likes", lb, la)}
+         ${performanceHtml(item, isBooster)}
          ${reviewHtml(url)}`
     );
+}
+
+function performanceHtml(item, isBooster) {
+    const vb = value(item, "viewsBefore", "upload");
+    const lb = value(item, "likesBefore", "upload");
+    const va = value(item, "viewsAfter", "upload");
+    const la = value(item, "likesAfter", "upload");
+
+    // Tampilkan statistik kalau memang ada angka, atau kalau kontennya memakai booster.
+    if (!isBooster && !vb && !lb && !va && !la) return "";
+
+    return `
+        <div class="performance-box">
+            <div class="performance-title"><i class="fa-solid fa-chart-line"></i> Performa Konten</div>
+            <div class="performance-grid">
+                <div><span>Views sebelum booster</span><strong>${escapeHtml(formatValue(vb) || "-")}</strong></div>
+                <div><span>Views setelah booster</span><strong>${escapeHtml(formatValue(va) || "-")}</strong></div>
+                <div><span>Likes sebelum booster</span><strong>${escapeHtml(formatValue(lb) || "-")}</strong></div>
+                <div><span>Likes setelah booster</span><strong>${escapeHtml(formatValue(la) || "-")}</strong></div>
+            </div>
+        </div>`;
 }
 
 function createBoosterCard(item) {
@@ -254,11 +271,6 @@ function cardTemplate(title, body) {
 
 function field(label, val) {
     return `<p><b>${escapeHtml(label)}</b><br>${escapeHtml(formatValue(val) || "-")}</p>`;
-}
-
-function metricHtml(label, before, after) {
-    if (!before && !after) return "";
-    return `<div class="metric-row"><span class="metric-label">${escapeHtml(label)}</span><span class="metric-values">${escapeHtml(formatValue(before) || "-")} → ${escapeHtml(formatValue(after) || "-")}</span></div>`;
 }
 
 function reviewHtml(url) {
@@ -294,22 +306,15 @@ async function openTikTokPreview(url) {
         </div>`;
 
     try {
-        // TikTok's oEmbed endpoint accepts a TikTok video URL and returns
-        // the canonical post information, including the post ID.
-        const response = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`, {
-            method: "GET",
-            cache: "no-store"
-        });
+        // Short link vt.tiktok.com harus di-resolve dari Apps Script karena browser
+        // biasanya terkena CORS/redirect restriction jika mencoba langsung.
+        const resolverUrl = `${API_URL}?action=resolveTikTok&url=${encodeURIComponent(url)}&t=${Date.now()}`;
+        const response = await fetch(resolverUrl, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Resolver HTTP ${response.status}`);
 
-        if (!response.ok) throw new Error(`oEmbed HTTP ${response.status}`);
-        const data = await response.json();
-        const html = String(data.html || "");
-        const idMatch = html.match(/data-video-id=["'](\d+)["']/i);
-        const id = idMatch ? idMatch[1] : "";
-
-        if (!id) throw new Error("TikTok post ID tidak ditemukan");
-
-        const playerUrl = `https://www.tiktok.com/player/v1/${id}?controls=1&description=1&music_info=1&loop=0`;
+        const result = await response.json();
+        const playerUrl = String(result.playerUrl || "").trim();
+        if (!playerUrl) throw new Error("TikTok video ID tidak ditemukan");
 
         body.innerHTML = `
             <iframe
@@ -321,12 +326,12 @@ async function openTikTokPreview(url) {
                 loading="eager">
             </iframe>`;
     } catch (error) {
-        console.warn("TikTok embedded preview gagal:", error);
+        console.warn("TikTok preview gagal:", error);
         body.innerHTML = `
             <div class="preview-fallback">
                 <i class="fa-brands fa-tiktok"></i>
-                <h3>Preview TikTok tidak dapat dimuat</h3>
-                <p>Browser atau TikTok menolak embed untuk link ini. Kamu tetap bisa membuka videonya langsung.</p>
+                <h3>Preview belum bisa dimuat</h3>
+                <p>TikTok tidak memberikan video ID yang bisa ditanam untuk link ini.</p>
                 <a class="tiktok-fallback-link" href="${escapeAttribute(url)}" target="_blank" rel="noopener noreferrer">Buka Video di TikTok <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
             </div>`;
     }
@@ -340,7 +345,7 @@ function ensurePreviewModal() {
     modal.id = "tiktokPreviewModal";
     modal.className = "tiktok-preview-modal";
     modal.innerHTML = `
-        <div class="tiktok-preview-dialog" role="dialog" aria-modal="true" aria-label="Preview TikTok">
+        <div class="tiktok-preview-dialog" role="dialog" aria-modal="true" aria-label="Review Konten TikTok">
             <button type="button" class="tiktok-preview-close" aria-label="Tutup">×</button>
             <div class="tiktok-preview-body"></div>
             <a class="tiktok-open-button" href="#" target="_blank" rel="noopener noreferrer">Buka di TikTok</a>
@@ -402,10 +407,6 @@ function formatValue(value) {
     return String(value).trim();
 }
 
-function cleanValue(value) {
-    return formatValue(value);
-}
-
 function normalizeKey(key) {
     return String(key ?? "")
         .toLowerCase()
@@ -418,7 +419,7 @@ function value(item, type, sheet) {
     const aliases = {
         judul: ["judulkonten", "judul", "namakonten", "title"],
         editor: ["editor"],
-        akun: ["akuntiktok", "akuntiktok", "akun"],
+        akun: ["akuntiktok", "akun"],
         bahan: ["tanggalbahanmentahditerima", "bahanmentahditerima", "tanggalbahan"],
         mulaiEdit: ["tanggalmulaiedit", "mulaiedit"],
         jadiKonten: ["tanggaljadikonten", "jadikonten"],
@@ -433,10 +434,10 @@ function value(item, type, sheet) {
         jenisBooster: ["jenisbooster", "booster"],
         nominalBooster: ["nominalbooster"],
         asalDana: ["asaldanabooster", "asaldana"],
-        viewsBefore: ["jumlahviewlikesebelumbooster", "viewsbefore", "viewbefore", "view"],
-        likesBefore: ["likesbefore", "likebefore", "like"],
-        viewsAfter: ["jumlahviewlikesetelahbooster", "viewsafter", "viewafter"],
-        likesAfter: ["likesafter", "likeafter"],
+        viewsBefore: ["viewsbefore", "viewbefore", "viewsebelum", "jumlahviewlikesebelumbooster"],
+        likesBefore: ["likesbefore", "likebefore", "likessebelum", "jumlahlikebefore"],
+        viewsAfter: ["viewsafter", "viewafter", "viewsetelah", "jumlahviewlikesetelahbooster"],
+        likesAfter: ["likesafter", "likeafter", "likesetelah", "jumlahlikeafter"],
         cabang: ["cabangyangdibooster", "cabang"],
         tanggal: ["tanggalbooster", "tanggal"],
         asalBiaya: ["asalbiayabooster", "asalbiaya"],
@@ -448,21 +449,18 @@ function value(item, type, sheet) {
 
     if (Array.isArray(item)) {
         const index = indexFor(sheet, type);
-        return index >= 0 ? cleanValue(item[index]) : "";
+        return index >= 0 ? formatValue(item[index]) : "";
     }
     if (!item || typeof item !== "object") return "";
 
-    const entries = Object.entries(item).filter(([, raw]) => raw !== null && raw !== undefined && String(raw).trim() !== "");
+    const entries = Object.entries(item).filter(([, raw]) => raw !== null && raw !== undefined);
 
     for (const [key, raw] of entries) {
-        if (wanted.includes(normalizeKey(key))) return cleanValue(raw);
+        if (wanted.includes(normalizeKey(key))) return formatValue(raw);
     }
 
-    for (const [key, raw] of entries) {
-        const normalized = normalizeKey(key);
-        if (wanted.some(alias => normalized.includes(alias) || alias.includes(normalized))) return cleanValue(raw);
-    }
-
+    // Header dari Google Sheets kadang punya tambahan kata View/Like.
+    // Cocokkan secara semantik supaya angka tetap terbaca.
     const semantic = {
         judul: /judul|title|nama.*konten/i,
         akun: /akun.*tiktok|akun/i,
@@ -487,7 +485,7 @@ function value(item, type, sheet) {
 
     if (semantic[type]) {
         for (const [key, raw] of entries) {
-            if (semantic[type].test(String(key))) return cleanValue(raw);
+            if (semantic[type].test(String(key))) return formatValue(raw);
         }
     }
 
@@ -572,7 +570,13 @@ function injectRuntimeStyles() {
         .simple-modal{position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(10,18,35,.65);padding:20px}
         .simple-modal-box{position:relative;background:#fff;border-radius:20px;padding:28px;width:min(420px,92vw);box-shadow:0 25px 70px rgba(0,0,0,.25)}
         .simple-modal-close{position:absolute;right:12px;top:12px;border:0;background:#f2f4f8;border-radius:50%;width:34px;height:34px;font-size:22px;cursor:pointer}.simple-modal h2{margin-top:0}.modal-note{color:#64748b}.modal-ok{border:0;border-radius:12px;padding:11px 18px;font-weight:700;cursor:pointer}
-        @media(max-width:600px){.tiktok-preview-modal{padding:0}.tiktok-preview-dialog{width:100vw;height:100vh;border-radius:0}.tiktok-preview-body{min-height:0}}
+        .performance-box{margin:14px 0;padding:14px;border-radius:14px;background:#f6f8fc;border:1px solid #e8edf5}
+        .performance-title{font-weight:700;margin-bottom:10px}
+        .performance-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+        .performance-grid div{background:#fff;border-radius:10px;padding:9px}
+        .performance-grid span{display:block;font-size:11px;color:#64748b;margin-bottom:4px}
+        .performance-grid strong{display:block;font-size:15px}
+        @media(max-width:600px){.tiktok-preview-modal{padding:0}.tiktok-preview-dialog{width:100vw;height:100vh;border-radius:0}.tiktok-preview-body{min-height:0}.performance-grid{grid-template-columns:1fr 1fr}}
     `;
     document.head.appendChild(style);
 }
