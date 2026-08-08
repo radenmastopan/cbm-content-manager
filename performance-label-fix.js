@@ -1,6 +1,6 @@
 /* CBM PERFORMANCE LABEL FIX
-   Keeps the existing data and layout, but guarantees that the four
-   performance metrics always have visible labels.
+   Keep the labels already rendered by script.js. The previous version
+   removed the <span>, which is exactly why the labels disappeared.
 */
 (function () {
     const LABELS = [
@@ -18,18 +18,14 @@
 
                 let label = box.querySelector(".performance-label");
                 if (!label) {
-                    label = document.createElement("div");
-                    label.className = "performance-label";
-
-                    const oldSpan = box.querySelector("span");
-                    if (oldSpan) {
-                        oldSpan.remove();
-                    }
-
-                    const value = box.querySelector("strong");
-                    box.insertBefore(label, value || null);
+                    label = box.querySelector("span");
+                }
+                if (!label) {
+                    label = document.createElement("span");
+                    box.insertBefore(label, box.querySelector("strong") || null);
                 }
 
+                label.className = "performance-label";
                 label.textContent = LABELS[index];
             });
         });
@@ -37,15 +33,8 @@
 
     function start() {
         fixPerformanceLabels(document);
-
-        const observer = new MutationObserver(() => {
-            fixPerformanceLabels(document);
-        });
-
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
+        const observer = new MutationObserver(() => fixPerformanceLabels(document));
+        observer.observe(document.body, { childList: true, subtree: true });
     }
 
     if (document.readyState === "loading") {
